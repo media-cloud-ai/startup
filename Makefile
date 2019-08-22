@@ -9,11 +9,14 @@ backend-up: ## [container=] ## (Re-)Create and start containers
 backend-stop: ## [container=] ## (Re-)Stop containers
 	@$(docker-compose-backend) stop
 
+backend-ps:
+	@$(docker-compose-backend) ps
+
 workers-up: ## [container=] ## (Re-)Create and start containers
 	@$(docker-compose-workers) up -d --remove-orphans
 
 workers-stop: ## [container=] ## (Re-)Create and start containers
 	@$(docker-compose-workers) stop
 
-backend-ps:
-	@$(docker-compose-backend) ps
+workers-ps:
+	@$(docker-compose-workers) ps

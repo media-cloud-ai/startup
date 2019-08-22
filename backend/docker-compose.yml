@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   backend:
-    image: ftvsubtil/backend:latest
+    image: mediacloudai/backend:latest
     volumes:
       - ${PWD}/dash:/dash
     ports:
@@ -79,19 +79,3 @@ services:
         delay: 5s
         max_attempts: 3
         window: 30s
-
-  # massive-ingest:
-  #   image: "ftvsubtil/massive_ingest:1.0.0"
-  #   environment:
-  #     PORT: "8081"
-  #     DATABASE_URL: "ecto://postgres:postgres@database:5432/${DATABASE_NAME}?pool_size=10"
-  #     DATABASE_HOSTNAME: "database"
-  #     DATABASE_PORT: 5432
-  #     DATABASE_USERNAME: ${DATABASE_USERNAME}
-  #     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-  #     DATABASE_NAME: ${DATABASE_NAME}
-      
-  #     BACKEND_HOSTNAME: "http://backend:8080/api"
-  #     BACKEND_USERNAME: ${ROOT_EMAIL}
-  #     BACKEND_PASSWORD: ${ROOT_PASSWORD}
-
