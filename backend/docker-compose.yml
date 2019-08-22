@@ -1,0 +1,97 @@
+version: "3.6"
+
+services:
+  backend:
+    image: ftvsubtil/backend:latest
+    volumes:
+      - ${PWD}/dash:/dash
+    ports:
+      - 8080:8080
+    environment:
+      APP_LABEL: "Subtil"
+      APP_LOGO: "SubTil_logo_preview.png"
+      APP_COMPANY_LOGO: "logo_id_2018_fushia13_2lignes.png"
+      APP_COMPANY: "FranceTélévisions"
+      APP_IDENTIFIER: "subtil"
+
+      PORT: "8080"
+      SSL: "false"
+
+      SENDGRID_API_KEY: ""
+
+      DATABASE_URL: "ecto://postgres:postgres@database:5432/${DATABASE_NAME}?pool_size=10"
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOSTNAME: "database"
+
+      AMQP_HOSTNAME: "rabbitmq"
+      AMQP_PORT: 5672
+      AMQP_MANAGEMENT_PORT: 15672
+      AMQP_USERNAME: ${AMQP_USERNAME}
+      AMQP_PASSWORD: ${AMQP_PASSWORD}
+      AMQP_VHOST: ${AMQP_VHOST}
+      DOCKER_CONTAINER_AMQP_TLS: "false"
+      DOCKER_CONTAINER_AMQP_HOSTNAME: "rabbitmq"
+      DOCKER_CONTAINER_AMQP_USERNAME: ${AMQP_USERNAME}
+      DOCKER_CONTAINER_AMQP_PASSWORD: ${AMQP_PASSWORD}
+      DOCKER_CONTAINER_AMQP_VHOST: ${AMQP_VHOST}
+
+      DOCKER_CONTAINER_BACKEND_HOSTNAME: "http://backend:8080/api"
+      DOCKER_CONTAINER_BACKEND_USERNAME: ${ROOT_EMAIL}
+      DOCKER_CONTAINER_BACKEND_PASSWORD: ${ROOT_PASSWORD}
+
+      WORK_DIR: "/data"
+      ROOT_DASH_CONTENT: "/dash"
+
+      ROOT_EMAIL: ${ROOT_EMAIL}
+      ROOT_PASSWORD: ${ROOT_PASSWORD}
+      HOSTNAME: "backend.media-cloud.ai"
+
+      VIDEO_FACTORY_ENDPOINT: ""
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 30s
+    depends_on:
+      - database
+      - rabbitmq
+
+  rabbitmq:
+    image: "rabbitmq:3.7.7-management"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${AMQP_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${AMQP_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${AMQP_VHOST}
+
+  database:
+    image: "postgres:9.6.1"
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 30s
+
+  # massive-ingest:
+  #   image: "ftvsubtil/massive_ingest:1.0.0"
+  #   environment:
+  #     PORT: "8081"
+  #     DATABASE_URL: "ecto://postgres:postgres@database:5432/${DATABASE_NAME}?pool_size=10"
+  #     DATABASE_HOSTNAME: "database"
+  #     DATABASE_PORT: 5432
+  #     DATABASE_USERNAME: ${DATABASE_USERNAME}
+  #     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  #     DATABASE_NAME: ${DATABASE_NAME}
+      
+  #     BACKEND_HOSTNAME: "http://backend:8080/api"
+  #     BACKEND_USERNAME: ${ROOT_EMAIL}
+  #     BACKEND_PASSWORD: ${ROOT_PASSWORD}
+
