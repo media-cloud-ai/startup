@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   backend:
-    image: mediacloudai/backend:latest
+    image: mediacloudai/ex_backend:latest
     volumes:
       - ${PWD}/dash:/dash
     ports:

@@ -14,7 +14,7 @@ make backend-up
 #### Workers startup
 
 ```bash
-make backend-up
+make workers-up
 ```
 
 ## Stop the platform
@@ -28,5 +28,5 @@ make backend-stop
 #### Workers
 
 ```bash
-make backend-stop
+make workers-stop
 ```
