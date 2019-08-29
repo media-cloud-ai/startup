@@ -1,8 +1,10 @@
 PROJECT_NAME=mediacloudai
 
 include .env
-include .env-backend
-include .env-workers
+include .env.backend
+include .env.workers
+
+export	# This will make all variables defined in envfile to becomes environment variables.
 
 include scripts/colors.make
 
