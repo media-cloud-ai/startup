@@ -2,9 +2,7 @@ version: "3.6"
 
 services:
   backend:
-    image: mediacloudai/ex_backend:latest
-    #image: mediacloudai/ex_backend:stc
-    #image: ftvsubtil/backend:latest
+    image: registry.ftven.net/media-cloud-ai/ex_backend:debug
     volumes:
       - ${PWD}/dash:/dash
     ports:
