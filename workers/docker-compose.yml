@@ -14,12 +14,14 @@ services:
       AMQP_VHOST: ${AMQP_VHOST}
 
       RUST_LOG: "debug"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 30s
+#    deploy:
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#        window: 30s
+    networks:
+      - global
 
   rs_file_system_worker:
     image: mediacloudai/rs_file_system_worker:latest
@@ -34,12 +36,14 @@ services:
       AMQP_VHOST: ${AMQP_VHOST}
 
       RUST_LOG: "debug"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 30s
+#    deploy:
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#        window: 30s
+    networks:
+      - global
 
   rs_tranfer_worker:
     image: mediacloudai/rs_tranfer_worker:latest
@@ -54,12 +58,14 @@ services:
       AMQP_VHOST: ${AMQP_VHOST}
 
       RUST_LOG: "debug"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 30s
+#    deploy:
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#        window: 30s
+    networks:
+      - global
 
   rs_http_worker:
     image: mediacloudai/rs_http_worker:latest
@@ -74,9 +80,15 @@ services:
       AMQP_VHOST: ${AMQP_VHOST}
 
       RUST_LOG: "debug"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 30s
+#    deploy:
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#        window: 30s
+    networks:
+      - global
+
+networks:
+  global:
+    external: true
