@@ -6,8 +6,7 @@ services:
     volumes:
       - ${PWD}/dash:/dash
     ports:
-      - 8080:8080
-      - 8081:8082
+      - 80:80
     environment:
       APP_LABEL: "${APP_LABEL}"
       APP_LOGO: "${APP_LOGO}"
@@ -34,16 +33,6 @@ services:
       AMQP_PASSWORD: "${AMQP_PASSWORD}"
       AMQP_VHOST: "${AMQP_VHOST}"
 
-      DOCKER_CONTAINER_AMQP_TLS: "${AMQP_TLS}"
-      DOCKER_CONTAINER_AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-      DOCKER_CONTAINER_AMQP_USERNAME: "${AMQP_USERNAME}"
-      DOCKER_CONTAINER_AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      DOCKER_CONTAINER_AMQP_VHOST: "${AMQP_VHOST}"
-
-      DOCKER_CONTAINER_BACKEND_HOSTNAME: "http://backend:8080/api"
-      DOCKER_CONTAINER_BACKEND_USERNAME: "${ROOT_EMAIL}"
-      DOCKER_CONTAINER_BACKEND_PASSWORD: "${ROOT_PASSWORD}"
-
       WORK_DIR: "/data"
       ROOT_DASH_CONTENT: "/dash"
       
@@ -66,7 +55,7 @@ services:
       POSTGRES_DB: "${DATABASE_NAME}"
     networks:
       - backend
-      
+
 networks:
   backend:
     driver: bridge

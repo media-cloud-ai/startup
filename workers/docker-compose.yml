@@ -14,9 +14,9 @@ services:
       AMQP_PASSWORD: "${AMQP_PASSWORD}"
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
-      RUST_LOG: "debug"
+      RUST_LOG: "info"
       BACKEND_PASSWORD: "${ROOT_PASSWORD}"
-      BACKEND_HOSTNAME: "http://${HOSTNAME}/api"
+      BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
       BACKEND_USERNAME: "${ROOT_EMAIL}"
     networks:
       - mediacloudai_global
