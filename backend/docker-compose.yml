@@ -2,11 +2,12 @@ version: "3.6"
 
 services:
   backend:
-    image: registry.ftven.net/media-cloud-ai/ex_backend:debug
+    image: registry.ftven.net/media-cloud-ai/ex_backend:1.0.0
     volumes:
       - ${PWD}/dash:/dash
     ports:
       - 8080:8080
+      - 8081:8082
     environment:
       APP_LABEL: "${APP_LABEL}"
       APP_LOGO: "${APP_LOGO}"
@@ -51,18 +52,11 @@ services:
       HOSTNAME: "${APP_DNS}"
 
       VIDEO_FACTORY_ENDPOINT: "http://192.168.101.107:8081/api/"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
     networks:
-      - global
+      - mediacloudai_global
       - backend
     depends_on:
       - database
-      - rabbitmq
 
   database:
     image: "postgres:9.6.1"
@@ -70,17 +64,11 @@ services:
       POSTGRES_USER: "${DATABASE_USERNAME}"
       POSTGRES_PASSWORD: "${DATABASE_PASSWORD}"
       POSTGRES_DB: "${DATABASE_NAME}"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
     networks:
       - backend
-
+      
 networks:
   backend:
     driver: bridge
-  global:
+  mediacloudai_global:
     external: true

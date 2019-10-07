@@ -1,94 +1,29 @@
 version: "3.6"
 
 services:
-  rs_command_line_worker:
-    image: mediacloudai/rs_command_line_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_HOSTNAME: "localhost"
-      AMQP_PORT: 5672
-      AMQP_MANAGEMENT_PORT: 15672
-      AMQP_USERNAME: ${AMQP_USERNAME}
-      AMQP_PASSWORD: ${AMQP_PASSWORD}
-      AMQP_VHOST: ${AMQP_VHOST}
-
-      RUST_LOG: "debug"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
-    networks:
-      - global
-
-  rs_file_system_worker:
-    image: mediacloudai/rs_file_system_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_HOSTNAME: "localhost"
-      AMQP_PORT: 5672
-      AMQP_MANAGEMENT_PORT: 15672
-      AMQP_USERNAME: ${AMQP_USERNAME}
-      AMQP_PASSWORD: ${AMQP_PASSWORD}
-      AMQP_VHOST: ${AMQP_VHOST}
-
-      RUST_LOG: "debug"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
-    networks:
-      - global
-
   rs_tranfer_worker:
     image: mediacloudai/rs_tranfer_worker:latest
     volumes:
       - ${PWD}/data:/data
     environment:
-      AMQP_HOSTNAME: "localhost"
-      AMQP_PORT: 5672
-      AMQP_MANAGEMENT_PORT: 15672
-      AMQP_USERNAME: ${AMQP_USERNAME}
-      AMQP_PASSWORD: ${AMQP_PASSWORD}
-      AMQP_VHOST: ${AMQP_VHOST}
-
+      AMQP_QUEUE: "job_ftp"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "debug"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
+      BACKEND_PASSWORD: "${ROOT_PASSWORD}"
+      BACKEND_HOSTNAME: "http://${HOSTNAME}/api"
+      BACKEND_USERNAME: "${ROOT_EMAIL}"
     networks:
-      - global
-
-  rs_http_worker:
-    image: mediacloudai/rs_http_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_HOSTNAME: "localhost"
-      AMQP_PORT: 5672
-      AMQP_MANAGEMENT_PORT: 15672
-      AMQP_USERNAME: ${AMQP_USERNAME}
-      AMQP_PASSWORD: ${AMQP_PASSWORD}
-      AMQP_VHOST: ${AMQP_VHOST}
-
-      RUST_LOG: "debug"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
-    networks:
-      - global
+      - mediacloudai_global
+      - workers
 
 networks:
-  global:
+  workers:
+    driver: bridge
+  mediacloudai_global:
     external: true
