@@ -64,27 +64,6 @@ services:
       - mediacloudai_global
       - workers
 
-  http:
-    image: mediacloudai/rs_tranfer_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_QUEUE: "job_http"
-      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-      AMQP_PORT: "${AMQP_PORT}"
-      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
-      AMQP_USERNAME: "${AMQP_USERNAME}"
-      AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      AMQP_VHOST: "${AMQP_VHOST}"
-      AMQP_TLS: "${AMQP_TLS}"
-      RUST_LOG: "info"
-      BACKEND_PASSWORD: "${ROOT_PASSWORD}"
-      BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
-      BACKEND_USERNAME: "${ROOT_EMAIL}"
-    networks:
-      - mediacloudai_global
-      - workers
-
   ffmpeg:
     image: mediacloudai/py_ffmpeg_worker:latest
     volumes:
@@ -99,9 +78,62 @@ services:
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
-      BACKEND_PASSWORD: "${ROOT_PASSWORD}"
-      BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
-      BACKEND_USERNAME: "${ROOT_EMAIL}"
+    networks:
+      - mediacloudai_global
+      - workers
+
+  ism:
+    image: mediacloudai/rs_manifest_worker:latest
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_ism_manifest"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      MANIFEST_MODE: "ISM"
+    networks:
+      - mediacloudai_global
+      - workers
+
+  dash:
+    image: mediacloudai/rs_manifest_worker:latest
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_dash_manifest"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      MANIFEST_MODE: "DASH"
+    networks:
+      - mediacloudai_global
+      - workers
+
+  acs:
+    image: registry.ftven.net/media-cloud-ai/docker-acs-worker:1.0.0
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_acs"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
     networks:
       - mediacloudai_global
       - workers
