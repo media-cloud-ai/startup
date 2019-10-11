@@ -113,10 +113,5 @@ check-openssl:
 generate-certs: check-openssl
 	@rm -rf certs/
 	@mkdir certs/
-	@$(call displayheader,$(CYAN_COLOR),"Generate rsa private key")
-	@openssl genrsa -aes256 -passout pass:mediacloudai -out certs/rsa_key 2048
-	@$(call displayheader,$(CYAN_COLOR),"Convert key format PKCS-8 to PKCS-1")
-	@openssl rsa -passin pass:mediacloudai -passout pass:mediacloudai -in certs/rsa_key -aes256 -out certs/private.key
-	@rm -f certs/rsa_key
-	@$(call displayheader,$(CYAN_COLOR),"Generate self-signed certificat")
-	@openssl req -new -x509 -days 3650 -passin pass:mediacloudai -key certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"
+	@$(call displayheader,$(CYAN_COLOR),"Generate certificate")
+	@openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"
