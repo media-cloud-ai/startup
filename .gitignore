@@ -2,3 +2,5 @@
 .env.backend
 *.sql
 data/
+storage-mca/
+certs/

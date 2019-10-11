@@ -11,17 +11,62 @@ include scripts/colors.make
 docker-compose-backbone = docker-compose -f backbone/docker-compose.yml -p $(PROJECT_NAME)_backbone
 docker-compose-backend = docker-compose -f backend/docker-compose.yml -p $(PROJECT_NAME)_backend
 docker-compose-workers = docker-compose -f workers/docker-compose.yml -p $(PROJECT_NAME)_workers
+docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJECT_NAME)_storage
 
 ##############
 ### COMMON ###
 ##############
 
-clean: backend-clean workers-clean backbone-clean
+%-clean:
+	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
+	@$(call displayheader,$(CYAN_COLOR),"${ns} CLEANING")
+	@if [ "$(docker-compose-$*)" != "" ]; then \
+		$(docker-compose-$*) down -v --remove-orphans --rmi local; \
+	else \
+		echo "Unknown '$*'"; \
+	fi
+	@echo
+
+%-ps:
+	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
+	@$(call displayheader,$(CYAN_COLOR),"${ns} SHOWING CONTAINERS")
+	@if [ "$(docker-compose-$*)" != "" ]; then \
+		$(docker-compose-$*) ps; \
+	else \
+		echo "Unknown '$*'"; \
+	fi
+	@echo
+
+%-stop: 
+	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
+	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
+	@if [ "$(docker-compose-$*)" != "" ]; then \
+		$(docker-compose-$*) stop; \
+	else \
+		echo "Unknown '$*'"; \
+	fi
+	@echo
+
+%-up: 
+	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
+	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
+	@if [ "$(docker-compose-$*)" != "" ]; then \
+		$(docker-compose-$*) up -d --remove-orphans; \
+	else \
+		echo "Unknown '$*'"; \
+	fi
+	@echo
+
+clean: backend-clean workers-clean backbone-clean storage-clean
 	@docker network rm mediacloudai_global
+	@rm -rf certs/
 
 init:
+	@$(call displayheader,$(CYAN_COLOR),"INIT")
 	@$(eval NETWORK=$(shell docker network list --filter name=^mediacloudai_global$$ --no-trunc --format '{{.Name}}'))	
 	@[ "${NETWORK}" ] || docker network create mediacloudai_global 1>/dev/null
+	@$(call cecho,$(GREEN_COLOR), "Network mediacloudai_global created....")
+	@echo
 
 ip:
 	@$(call cecho,$(GREEN_COLOR),"GATEWAY mediacloudai_global: $(shell docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' mediacloudai_global)")
@@ -31,59 +76,19 @@ ip:
 	  echo " "; \
 	done
 
-ps: backend-ps workers-ps backbone-ps
+ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps
 
-up: backend-up workers-up ip
+up: init backbone-up backend-up workers-up generate-certs storage-up ip
 
-stop: backend-stop workers-stop backbone-stop
+stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop
 
 ################
 ### BACKBONE ###
 ################
 
-backbone-clean:
-	@$(call displayheader,$(CYAN_COLOR),"BACKBONE CLEANING")
-	@${docker-compose-backbone} down -v --remove-orphans --rmi local
-	@echo
-
-backbone-ps:
-	@$(call displayheader,$(CYAN_COLOR),"BACKBONE SHOWING CONTAINERS")
-	@$(docker-compose-backbone) ps
-	@echo
-
-backbone-stop: ## [container=] ## (Re-)Stop containers
-	@$(call displayheader,$(CYAN_COLOR),"BACKBONE STOPING")
-	@$(docker-compose-backbone) stop
-	@echo
-
-backbone-up: init ## [container=] ## (Re-)Create and start containers
-	@$(call displayheader,$(CYAN_COLOR),"BACKBONE STARTING")
-	@$(docker-compose-backbone) up -d --remove-orphans
-	@echo
-
 ###############
 ### BACKEND ###
 ###############
-
-backend-clean:
-	@$(call displayheader,$(CYAN_COLOR),"BACKEND CLEANING")
-	@${docker-compose-backend} down -v --remove-orphans --rmi local
-	@echo
-
-backend-ps:
-	@$(call displayheader,$(CYAN_COLOR),"BACKEND SHOWING CONTAINERS")
-	@$(docker-compose-backend) ps
-	@echo
-
-backend-stop: ## [container=] ## (Re-)Stop containers
-	@$(call displayheader,$(CYAN_COLOR),"BACKEND STOPING")
-	@$(docker-compose-backend) stop
-	@echo
-
-backend-up: backbone-up ## [container=] ## (Re-)Create and start containers
-	@$(call displayheader,$(CYAN_COLOR),"BACKEND STARTING")
-	@$(docker-compose-backend) up -d --remove-orphans
-	@echo
 
 backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 	@$(docker-compose-backend) exec -T database pg_dump -U${DATABASE_USERNAME} ${DATABASE_NAME} > ${DATABASE_NAME}.sql
@@ -92,22 +97,26 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 ### WORKERS ###
 ###############
 
-workers-clean:
-	@$(call displayheader,$(CYAN_COLOR),"WORKERS CLEANING")
-	@${docker-compose-workers} down -v --remove-orphans --rmi local
+###############
+### STORAGE ###
+###############
+
+check-openssl: 
+	@$(eval openssl-bin := $(shell which openssl 2>/dev/null))
+	@if [ "${openssl-bin}" = "" ]; then \
+		echo "openssl not found"; \
+		exit -1; \
+	fi
+	@echo "openssl found in ${openssl-bin}"
 	@echo
 
-workers-ps:
-	@$(call displayheader,$(CYAN_COLOR),"WORKERS SHOWING CONTAINERS")
-	@$(docker-compose-workers) ps
-	@echo
-
-workers-stop: ## [container=] ## (Re-)Create and start containers
-	@$(call displayheader,$(CYAN_COLOR),"WORKERS STOPING")
-	@$(docker-compose-workers) stop
-	@echo
-
-workers-up: init backbone-up ## [container=] ## (Re-)Create and start containers
-	@$(call displayheader,$(CYAN_COLOR),"WORKERS STARTING")
-	@$(docker-compose-workers) up -d --remove-orphans
-	@echo
+generate-certs: check-openssl
+	@rm -rf certs/
+	@mkdir certs/
+	@$(call displayheader,$(CYAN_COLOR),"Generate rsa private key")
+	@openssl genrsa -aes256 -passout pass:mediacloudai -out certs/rsa_key 2048
+	@$(call displayheader,$(CYAN_COLOR),"Convert key format PKCS-8 to PKCS-1")
+	@openssl rsa -passin pass:mediacloudai -passout pass:mediacloudai -in certs/rsa_key -aes256 -out certs/private.key
+	@rm -f certs/rsa_key
+	@$(call displayheader,$(CYAN_COLOR),"Generate self-signed certificat")
+	@openssl req -new -x509 -days 3650 -passin pass:mediacloudai -key certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"

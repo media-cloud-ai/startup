@@ -3,6 +3,7 @@
 ## Requirements
 
 To start the platform locally you've to install [docker](https://www.docker.com) & [docker-compose](https://docs.docker.com/compose/).
+If you want to use storage services, you will need to install `openssl` too.
 
 
 ## Quick start
