@@ -7,7 +7,7 @@ services:
       - ${PWD}/storage-mca:/data
       - ${PWD}/certs:/root/.minio/certs
     ports:
-      - 81:9000
+      - 9001:9000
     entrypoint:
       - minio
       - server
@@ -16,6 +16,14 @@ services:
       MINIO_SECRET_KEY: "mediacloudai"
       MINIO_ACCESS_KEY: "mediacloudai"
       MINIO_CERT_PASSWD: "mediacloudai"
+    labels:
+      - "traefik.frontend.entryPoints=https"
+      - "traefik.port=443"
+      - "traefik.frontend.rule=Host:minio.media-cloud.ai"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.enable=true"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLForceHost=true"
     networks:
       - mediacloudai_global
       - storage-mca
@@ -24,6 +32,8 @@ services:
     image: registry.ftven.net/media-cloud-ai/nginx_vod_module:nginx-1.17.4-vod-1.25
     volumes:
       - ${PWD}/storage-mca:/data
+    labels:
+      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - storage-mca

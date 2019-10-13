@@ -39,6 +39,14 @@ services:
       ROOT_EMAIL: "${ROOT_EMAIL}"
       ROOT_PASSWORD: "${ROOT_PASSWORD}"
       HOSTNAME: "${APP_DNS}"
+    labels:
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.default.protocol=http"
+      - "traefik.docker.network=mediacloudai_global"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:backend.media-cloud.ai"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.enable=true"
     networks:
       - mediacloudai_global
       - backend
@@ -51,6 +59,8 @@ services:
       POSTGRES_USER: "${DATABASE_USERNAME}"
       POSTGRES_PASSWORD: "${DATABASE_PASSWORD}"
       POSTGRES_DB: "${DATABASE_NAME}"
+    labels:
+      - "traefik.enable=false"
     networks:
       - backend
 

@@ -1,0 +1,58 @@
+################################################################
+# Global configuration
+################################################################
+
+logLevel = "DEBUG"
+defaultEntryPoints = ["http"]
+
+################################################################
+# Logs configuration
+################################################################
+
+[traefikLog]
+  filePath = "/var/log/traefik/traefik.log"
+  format   = "json"
+
+[accessLog]
+  filePath = "/var/log/traefik/access.log"
+  format = "json"
+
+################################################################
+# Entrypoints configuration
+################################################################
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+      [[entryPoints.https.tls.certificates]]
+      certFile = "/certs/public.crt"
+      keyFile = "/certs/private.key"
+
+################################################################
+# API and dashboard configuration
+################################################################
+
+# Enable API and dashboard
+[api]
+  dashboard = true
+
+################################################################
+# Web configuration backend
+################################################################
+
+[web]
+  address = ":8080"
+
+################################################################
+# Docker configuration backend
+################################################################
+
+[docker]
+  endpoint = "unix:///var/run/docker.sock"
+  domain = "media-cloud.ai"
+  watch = true
