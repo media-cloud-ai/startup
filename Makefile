@@ -97,6 +97,10 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 ### WORKERS ###
 ###############
 
+workers-generate-cfg:
+	@$(call displayheader,$(CYAN_COLOR),"Generate docker-compose.yml for workers")
+	@./scripts/generate_workers_cfg.sh ${WORKERS_TO_START}
+
 ###############
 ### STORAGE ###
 ###############
