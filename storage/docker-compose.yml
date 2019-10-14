@@ -16,14 +16,6 @@ services:
       MINIO_SECRET_KEY: "mediacloudai"
       MINIO_ACCESS_KEY: "mediacloudai"
       MINIO_CERT_PASSWD: "mediacloudai"
-    labels:
-      - "traefik.frontend.entryPoints=https"
-      - "traefik.port=443"
-      - "traefik.frontend.rule=Host:minio.media-cloud.ai"
-      - "traefik.frontend.passHostHeader=true"
-      - "traefik.enable=true"
-      - "traefik.frontend.headers.SSLRedirect=true"
-      - "traefik.frontend.headers.SSLForceHost=true"
     networks:
       - mediacloudai_global
       - storage-mca

@@ -26,37 +26,24 @@ If you want to stop the plateform and remove containers:
 make clean
 ```
 
-## Traefik
+## Domains
 
-If you don't want be worried about update `/etc/hosts` file each time containers IP changed, you can use Traefik.
-Traefik can be used as container discovery and it allows to link an host to the container.
+### Configuration
 
-Here the list of configured hosts:
+Now, you must update your `/etc/hosts` file by adding the following domains with their respectives docker's IP (`make ip` to show containers's IPs):
 
-* backend.media-cloud-ai
-* minio.media-cloud.ai
+* local.backend.media-cloud.ai 
+* local.minio.media-cloud.ai
+* local.rabbitmq.media-cloud.ai
 
-Now, you must update your `/etc/hosts` file by adding:
-```
-127.0.0.1	backend.media-cloud.ai minio.media-cloud.ai
-```
-### Installation
+### URLs
 
-The simpliest way to install Traefik in local station is to use Docker.
-
-```
-docker run --name traefik -d -p 8080:8080 -p 80:80 -v $PWD/traefik.toml:/etc/traefik/traefik.toml -v /var/run/docker.sock:/var/run/docker.sock traefik:1.7.18-alpine --api --docker
-```
-
-## DnsMasq
-
-Now, if you don't want touch you `/etc/hosts` file, you can install `dnsmasq` a light DNS server.
-
-```bash
-sudo apt-get install -y dnsmasq
-sudo sh -c "echo address=/media-cloud.ai/127.0.0.1 > /etc/dnsmasq.d/media-cloud.ai.conf"
-sudo /etc/init.d/dnsmasq restart
-```
+| Namespace | Service   | URL |
+|-----------|-----------|-----|
+| Backbone  | RabbitMQ  | [http://local.rabbitmq.media-cloud.ai:15672](http://local.rabbitmq.media-cloud.ai:15672) |
+| Backend   | Backend   | [http://local.backend.media-cloud.ai](http://local.backend.media-cloud.ai) |
+| Storage   | Minio     | [https://local.minio.media-cloud.ai:9000](https://local.minio.media-cloud.ai:9000) |
+| Storage   | Nginx VOD | [http://local.nginx-vod-module.media-cloud.ai](http://local.nginx-vod-module.media-cloud.ai) |
 
 ### Common commands
 

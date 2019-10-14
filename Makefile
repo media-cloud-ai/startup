@@ -116,6 +116,3 @@ generate-certs: check-openssl
 	@$(call displayheader,$(CYAN_COLOR),"Generate certificate")
 	@openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"
 
-
-traefik:
-	@docker-compose -f docker-compose-traefik.yml -p $(PROJECT_NAME)_traefik up -d

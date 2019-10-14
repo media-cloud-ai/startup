@@ -18,8 +18,6 @@ services:
       BACKEND_PASSWORD: "${ROOT_PASSWORD}"
       BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
       BACKEND_USERNAME: "${ROOT_EMAIL}"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers
@@ -41,8 +39,6 @@ services:
       BACKEND_PASSWORD: "${ROOT_PASSWORD}"
       BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
       BACKEND_USERNAME: "${ROOT_EMAIL}"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers
@@ -64,8 +60,6 @@ services:
       BACKEND_PASSWORD: "${ROOT_PASSWORD}"
       BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
       BACKEND_USERNAME: "${ROOT_EMAIL}"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers
@@ -84,8 +78,6 @@ services:
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers
@@ -105,8 +97,6 @@ services:
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
       MANIFEST_MODE: "ISM"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers
@@ -126,8 +116,6 @@ services:
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
       MANIFEST_MODE: "DASH"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers
@@ -146,8 +134,6 @@ services:
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
-    labels:
-      - "traefik.enable=false"
     networks:
       - mediacloudai_global
       - workers

@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   backend:
-    image: mediacloudai/ex_backend:1.0.0
+    image: mediacloudai/ex_backend:latest
     volumes:
       - ${PWD}/dash:/dash
     ports:
@@ -39,14 +39,6 @@ services:
       ROOT_EMAIL: "${ROOT_EMAIL}"
       ROOT_PASSWORD: "${ROOT_PASSWORD}"
       HOSTNAME: "${APP_DNS}"
-    labels:
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.default.protocol=http"
-      - "traefik.docker.network=mediacloudai_global"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:backend.media-cloud.ai"
-      - "traefik.frontend.passHostHeader=true"
-      - "traefik.enable=true"
     networks:
       - mediacloudai_global
       - backend
