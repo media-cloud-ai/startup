@@ -2,11 +2,11 @@ version: "3.6"
 
 services:
   backend:
-    image: registry.ftven.net/media-cloud-ai/ex_backend:debug
+    image: mediacloudai/ex_backend:latest
     volumes:
       - ${PWD}/dash:/dash
     ports:
-      - 8080:8080
+      - ${BACKEND_PORT}:80
     environment:
       APP_LABEL: "${APP_LABEL}"
       APP_LOGO: "${APP_LOGO}"
@@ -14,7 +14,7 @@ services:
       APP_COMPANY: "${APP_COMPANY}"
       APP_IDENTIFIER: "${APP_IDENTIFIER}"
 
-      PORT: "${BACKEND_PORT}"
+      PORT: 80
       SSL: "${BACKEND_SSL}"
 
       SENDGRID_API_KEY: "${SENDGRID_API_KEY}"
@@ -33,36 +33,17 @@ services:
       AMQP_PASSWORD: "${AMQP_PASSWORD}"
       AMQP_VHOST: "${AMQP_VHOST}"
 
-      DOCKER_CONTAINER_AMQP_TLS: "${AMQP_TLS}"
-      DOCKER_CONTAINER_AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-      DOCKER_CONTAINER_AMQP_USERNAME: "${AMQP_USERNAME}"
-      DOCKER_CONTAINER_AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      DOCKER_CONTAINER_AMQP_VHOST: "${AMQP_VHOST}"
-
-      DOCKER_CONTAINER_BACKEND_HOSTNAME: "http://backend:8080/api"
-      DOCKER_CONTAINER_BACKEND_USERNAME: "${ROOT_EMAIL}"
-      DOCKER_CONTAINER_BACKEND_PASSWORD: "${ROOT_PASSWORD}"
-
       WORK_DIR: "/data"
       ROOT_DASH_CONTENT: "/dash"
       
       ROOT_EMAIL: "${ROOT_EMAIL}"
       ROOT_PASSWORD: "${ROOT_PASSWORD}"
       HOSTNAME: "${APP_DNS}"
-
-      VIDEO_FACTORY_ENDPOINT: "http://192.168.101.107:8081/api/"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
     networks:
-      - global
+      - mediacloudai_global
       - backend
     depends_on:
       - database
-      - rabbitmq
 
   database:
     image: "postgres:9.6.1"
@@ -70,17 +51,13 @@ services:
       POSTGRES_USER: "${DATABASE_USERNAME}"
       POSTGRES_PASSWORD: "${DATABASE_PASSWORD}"
       POSTGRES_DB: "${DATABASE_NAME}"
-#    deploy:
-#      restart_policy:
-#        condition: on-failure
-#        delay: 5s
-#        max_attempts: 3
-#        window: 30s
+    labels:
+      - "traefik.enable=false"
     networks:
       - backend
 
 networks:
   backend:
     driver: bridge
-  global:
+  mediacloudai_global:
     external: true

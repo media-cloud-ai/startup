@@ -1,0 +1,37 @@
+version: "3.6"
+
+services:
+  minio:
+    image: minio/minio:RELEASE.2019-10-02T21-19-38Z
+    volumes:
+      - ${PWD}/storage-mca:/data
+      - ${PWD}/certs:/root/.minio/certs
+    ports:
+      - 9001:9000
+    entrypoint:
+      - minio
+      - server
+      - /data
+    environment:
+      MINIO_SECRET_KEY: "mediacloudai"
+      MINIO_ACCESS_KEY: "mediacloudai"
+      MINIO_CERT_PASSWD: "mediacloudai"
+    networks:
+      - mediacloudai_global
+      - storage-mca
+
+  nginx_vod:
+    image: registry.ftven.net/media-cloud-ai/nginx_vod_module:nginx-1.17.4-vod-1.25
+    volumes:
+      - ${PWD}/storage-mca:/data
+    labels:
+      - "traefik.enable=false"
+    networks:
+      - mediacloudai_global
+      - storage-mca
+
+networks:
+  storage-mca:
+    driver: bridge
+  mediacloudai_global:
+    external: true
