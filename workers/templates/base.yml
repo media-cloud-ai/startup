@@ -1,7 +1,9 @@
+---
+
 version: "3.6"
 
 services:
-##SERVICES##
+## SERVICES ##
 
 networks:
   workers:

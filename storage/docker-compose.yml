@@ -1,3 +1,5 @@
+---
+
 version: "3.6"
 
 services:
@@ -21,7 +23,7 @@ services:
       - storage-mca
 
   nginx_vod:
-    image: registry.ftven.net/media-cloud-ai/nginx_vod_module:nginx-1.17.4-vod-1.25
+    image: mediacloudai/nginx_vod_module
     volumes:
       - ${PWD}/storage-mca:/data
     labels:

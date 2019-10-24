@@ -1,11 +1,11 @@
 ---
 
 file_system:
-  image: mediacloudai/rs_file_system_worker:latest
+  image: mediacloudai/rs_transfer_worker:latest
   volumes:
     - ${PWD}/data:/data
   environment:
-    AMQP_QUEUE: "job_file_system"
+    AMQP_QUEUE: "job_transfer"
     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
     AMQP_PORT: "${AMQP_PORT}"
     AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
