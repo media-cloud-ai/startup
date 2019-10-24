@@ -45,7 +45,7 @@ services:
       - mediacloudai_global
       - workers
 
-  file_system:
+  transfer:
     image: mediacloudai/rs_transfer_worker:latest
     volumes:
       - ${PWD}/data:/data
