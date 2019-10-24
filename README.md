@@ -26,6 +26,18 @@ If you want to stop the plateform and remove containers:
 make clean
 ```
 
+### Start Workers On-Demand
+
+By default, all workers are started. But there's a way to start only wanted workers.
+In `.env.workers` file there's an environment variable which list all workers to start: `WORKERS_TO_START`.
+In the variable, you can list all workers that you want to start and you must generate the new worker `docker-compose.yml` using:
+
+```bash
+make workers-generate-cfg
+```
+
+**WARNING: If all workers are already started, you must stop them before regenerate the docker-compose file using `make workers-stop`.**
+
 ## Domains
 
 ### Configuration

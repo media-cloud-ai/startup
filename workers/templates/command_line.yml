@@ -1,0 +1,20 @@
+  command_line:
+    image: mediacloudai/rs_command_line_worker:latest
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_command_line"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      BACKEND_PASSWORD: "${ROOT_PASSWORD}"
+      BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
+      BACKEND_USERNAME: "${ROOT_EMAIL}"
+    networks:
+      - mediacloudai_global
+      - workers
