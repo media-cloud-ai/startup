@@ -1,3 +1,5 @@
+---
+
 version: "3.6"
 
 services:
@@ -21,7 +23,7 @@ services:
     networks:
       - mediacloudai_global
       - workers
- 
+
   file_system:
     image: mediacloudai/rs_file_system_worker:latest
     volumes:
@@ -43,8 +45,27 @@ services:
       - mediacloudai_global
       - workers
 
- 
- 
+  transfer:
+    image: mediacloudai/rs_transfer_worker:latest
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_transfer"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      BACKEND_PASSWORD: "${ROOT_PASSWORD}"
+      BACKEND_HOSTNAME: "http://${HOSTNAME}:${BACKEND_PORT}/api"
+      BACKEND_USERNAME: "${ROOT_EMAIL}"
+    networks:
+      - mediacloudai_global
+      - workers
+
   ffmpeg:
     image: mediacloudai/py_ffmpeg_worker:latest
     volumes:
@@ -62,7 +83,7 @@ services:
     networks:
       - mediacloudai_global
       - workers
- 
+
   ism:
     image: mediacloudai/rs_manifest_worker:latest
     volumes:
@@ -81,7 +102,7 @@ services:
     networks:
       - mediacloudai_global
       - workers
- 
+
   dash:
     image: mediacloudai/rs_manifest_worker:latest
     volumes:
@@ -100,7 +121,6 @@ services:
     networks:
       - mediacloudai_global
       - workers
- 
 
 networks:
   workers:

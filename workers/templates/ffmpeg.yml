@@ -1,17 +1,19 @@
-  ffmpeg:
-    image: mediacloudai/py_ffmpeg_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_QUEUE: "job_ffmpeg"
-      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-      AMQP_PORT: "${AMQP_PORT}"
-      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
-      AMQP_USERNAME: "${AMQP_USERNAME}"
-      AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      AMQP_VHOST: "${AMQP_VHOST}"
-      AMQP_TLS: "${AMQP_TLS}"
-      RUST_LOG: "info"
-    networks:
-      - mediacloudai_global
-      - workers
+---
+
+ffmpeg:
+  image: mediacloudai/py_ffmpeg_worker:latest
+  volumes:
+    - ${PWD}/data:/data
+  environment:
+    AMQP_QUEUE: "job_ffmpeg"
+    AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+    AMQP_PORT: "${AMQP_PORT}"
+    AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+    AMQP_USERNAME: "${AMQP_USERNAME}"
+    AMQP_PASSWORD: "${AMQP_PASSWORD}"
+    AMQP_VHOST: "${AMQP_VHOST}"
+    AMQP_TLS: "${AMQP_TLS}"
+    RUST_LOG: "info"
+  networks:
+    - mediacloudai_global
+    - workers
