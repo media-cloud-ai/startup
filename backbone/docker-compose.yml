@@ -9,8 +9,8 @@ services:
       - backbone
       - mediacloudai_global
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 5678:5672
+      - 15678:15672
     labels:
       - "traefik.enable=false"
     environment:
