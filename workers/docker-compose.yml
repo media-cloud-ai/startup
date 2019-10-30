@@ -25,7 +25,7 @@ services:
       - workers
 
   file_system:
-    image: mediacloudai/rs_file_system_worker:latest
+    image: mediacloudai/rs_file_system_worker:v0.2.1
     volumes:
       - ${PWD}/data:/data
     environment:
@@ -46,7 +46,7 @@ services:
       - workers
 
   transfer:
-    image: mediacloudai/rs_transfer_worker:latest
+    image: mediacloudai/rs_transfer_worker:v0.1.2
     volumes:
       - ${PWD}/data:/data
     environment:
@@ -67,7 +67,7 @@ services:
       - workers
 
   ffmpeg:
-    image: mediacloudai/py_ffmpeg_worker:latest
+    image: mediacloudai/rs_ffmpeg_worker:v0.0.1
     volumes:
       - ${PWD}/data:/data
     environment:
@@ -80,44 +80,6 @@ services:
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
-    networks:
-      - mediacloudai_global
-      - workers
-
-  ism:
-    image: mediacloudai/rs_manifest_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_QUEUE: "job_ism_manifest"
-      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-      AMQP_PORT: "${AMQP_PORT}"
-      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
-      AMQP_USERNAME: "${AMQP_USERNAME}"
-      AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      AMQP_VHOST: "${AMQP_VHOST}"
-      AMQP_TLS: "${AMQP_TLS}"
-      RUST_LOG: "info"
-      MANIFEST_MODE: "ISM"
-    networks:
-      - mediacloudai_global
-      - workers
-
-  dash:
-    image: mediacloudai/rs_manifest_worker:latest
-    volumes:
-      - ${PWD}/data:/data
-    environment:
-      AMQP_QUEUE: "job_dash_manifest"
-      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-      AMQP_PORT: "${AMQP_PORT}"
-      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
-      AMQP_USERNAME: "${AMQP_USERNAME}"
-      AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      AMQP_VHOST: "${AMQP_VHOST}"
-      AMQP_TLS: "${AMQP_TLS}"
-      RUST_LOG: "info"
-      MANIFEST_MODE: "DASH"
     networks:
       - mediacloudai_global
       - workers
