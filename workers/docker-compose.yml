@@ -84,44 +84,6 @@ services:
       - mediacloudai_global
       - workers
 
-  # ism:
-  #   image: mediacloudai/rs_manifest_worker:latest
-  #   volumes:
-  #     - ${PWD}/data:/data
-  #   environment:
-  #     AMQP_QUEUE: "job_ism_manifest"
-  #     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-  #     AMQP_PORT: "${AMQP_PORT}"
-  #     AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
-  #     AMQP_USERNAME: "${AMQP_USERNAME}"
-  #     AMQP_PASSWORD: "${AMQP_PASSWORD}"
-  #     AMQP_VHOST: "${AMQP_VHOST}"
-  #     AMQP_TLS: "${AMQP_TLS}"
-  #     RUST_LOG: "info"
-  #     MANIFEST_MODE: "ISM"
-  #   networks:
-  #     - mediacloudai_global
-  #     - workers
-
-  # dash:
-  #   image: mediacloudai/rs_manifest_worker:latest
-  #   volumes:
-  #     - ${PWD}/data:/data
-  #   environment:
-  #     AMQP_QUEUE: "job_dash_manifest"
-  #     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
-  #     AMQP_PORT: "${AMQP_PORT}"
-  #     AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
-  #     AMQP_USERNAME: "${AMQP_USERNAME}"
-  #     AMQP_PASSWORD: "${AMQP_PASSWORD}"
-  #     AMQP_VHOST: "${AMQP_VHOST}"
-  #     AMQP_TLS: "${AMQP_TLS}"
-  #     RUST_LOG: "info"
-  #     MANIFEST_MODE: "DASH"
-  #   networks:
-  #     - mediacloudai_global
-  #     - workers
-
 networks:
   workers:
     driver: bridge
