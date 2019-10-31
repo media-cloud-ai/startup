@@ -40,7 +40,17 @@ services:
       ROOT_EMAIL: "${ROOT_EMAIL}"
       ROOT_PASSWORD: "${ROOT_PASSWORD}"
       HOSTNAME: "${APP_DNS}"
+      EXPOSED_DOMAIN_NAME: "${EXPOSED_DOMAIN_NAME}"
+
       VIDEO_FACTORY_ENDPOINT: "${VIDEO_FACTORY_ENDPOINT}"
+      VOD_ENDPOINT: "${VOD_ENDPOINT}"
+
+      AWS_URL: "${S3_ENDPOINT}"
+      AWS_ACCESS_KEY: "${S3_ACCESS_KEY}"
+      AWS_SECRET_KEY: "${S3_SECRET_KEY}"
+      AWS_REGION: "${S3_REGION}"
+      AWS_BUCKET: "${S3_BUCKET}"
+
     networks:
       - mediacloudai_global
       - backend
