@@ -7,7 +7,6 @@ services:
     image: minio/minio:RELEASE.2019-10-02T21-19-38Z
     volumes:
       - ${PWD}/storage-mca:/data
-      - ${PWD}/certs:/root/.minio/certs
     ports:
       - 9001:9000
     entrypoint:
@@ -25,9 +24,13 @@ services:
   nginx_vod:
     image: mediacloudai/nginx_vod_module
     volumes:
-      - ${PWD}/storage-mca:/data
+      - ${PWD}/storage-mca:/data/
+    ports:
+      - 8081:80
     labels:
       - "traefik.enable=false"
+    environment:
+      EXPOSED_ENTRY_POINT: "${VOD_EXPOSED_DOMAIN_NAME}"
     networks:
       - mediacloudai_global
       - storage-mca
