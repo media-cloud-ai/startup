@@ -80,6 +80,9 @@ services:
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
+      BACKEND_HOSTNAME: "${BACKEND_HOSTNAME}/api"
+      BACKEND_PASSWORD: "${BACKEND_PASSWORD}"
+      BACKEND_USERNAME: "${BACKEND_EMAIL}"
     networks:
       - mediacloudai_global
       - workers
@@ -98,6 +101,74 @@ services:
       AMQP_VHOST: "${AMQP_VHOST}"
       AMQP_TLS: "${AMQP_TLS}"
       RUST_LOG: "info"
+      BACKEND_HOSTNAME: "${BACKEND_HOSTNAME}/api"
+      BACKEND_PASSWORD: "${BACKEND_PASSWORD}"
+      BACKEND_USERNAME: "${BACKEND_EMAIL}"
+    networks:
+      - mediacloudai_global
+      - workers
+
+  dash:
+    image: mediacloudai/rs_manifest_worker:latest
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_dash_manifest"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      BACKEND_HOSTNAME: "${BACKEND_HOSTNAME}/api"
+      BACKEND_PASSWORD: "${BACKEND_PASSWORD}"
+      BACKEND_USERNAME: "${BACKEND_EMAIL}"
+      MANIFEST_MODE: "DASH"
+    networks:
+      - mediacloudai_global
+      - workers
+
+  ism:
+    image: mediacloudai/rs_manifest_worker:latest
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_ism_manifest"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      BACKEND_HOSTNAME: "${BACKEND_HOSTNAME}/api"
+      BACKEND_PASSWORD: "${BACKEND_PASSWORD}"
+      BACKEND_USERNAME: "${BACKEND_EMAIL}"
+      MANIFEST_MODE: "ISM"
+    networks:
+      - mediacloudai_global
+      - workers
+
+  stt:
+    image: py_speech_to_text_worker
+    volumes:
+      - ${PWD}/data:/data
+    environment:
+      AMQP_QUEUE: "job_speech_to_text"
+      AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
+      AMQP_PORT: "${AMQP_PORT}"
+      AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
+      AMQP_USERNAME: "${AMQP_USERNAME}"
+      AMQP_PASSWORD: "${AMQP_PASSWORD}"
+      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_TLS: "${AMQP_TLS}"
+      RUST_LOG: "info"
+      BACKEND_HOSTNAME: "${BACKEND_HOSTNAME}/api"
+      BACKEND_PASSWORD: "${BACKEND_PASSWORD}"
+      BACKEND_USERNAME: "${BACKEND_EMAIL}"
     networks:
       - mediacloudai_global
       - workers
