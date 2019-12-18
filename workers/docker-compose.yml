@@ -6,7 +6,7 @@ services:
   command_line:
     image: mediacloudai/rs_command_line_worker:latest
     volumes:
-      - ${PWD}/data:/data
+      - ${HOST_WORK_DIR}:/data
     environment:
       AMQP_QUEUE: "job_command_line"
       AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
@@ -27,7 +27,7 @@ services:
   file_system:
     image: mediacloudai/rs_file_system_worker:v0.2.1
     volumes:
-      - ${PWD}/data:/data
+      - ${HOST_WORK_DIR}:/data
     environment:
       AMQP_QUEUE: "job_file_system"
       AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
@@ -48,7 +48,7 @@ services:
   transfer:
     image: mediacloudai/rs_transfer_worker:v0.1.2
     volumes:
-      - ${PWD}/data:/data
+      - ${HOST_WORK_DIR}:/data
     environment:
       AMQP_QUEUE: "job_transfer"
       AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
@@ -69,7 +69,7 @@ services:
   ffmpeg:
     image: mediacloudai/rs_ffmpeg_worker:v0.0.1
     volumes:
-      - ${PWD}/data:/data
+      - ${HOST_WORK_DIR}:/data
     environment:
       AMQP_QUEUE: "job_ffmpeg"
       AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
@@ -87,7 +87,7 @@ services:
   acs:
     image: registry.gitlab.com/mediaio/docker-acs-worker:28b272f
     volumes:
-      - ${PWD}/data:/data
+      - ${HOST_WORK_DIR}:/data
     environment:
       AMQP_QUEUE: "job_acs"
       AMQP_HOSTNAME: "${AMQP_HOSTNAME}"

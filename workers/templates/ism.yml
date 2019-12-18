@@ -3,7 +3,7 @@
 ism:
   image: mediacloudai/rs_manifest_worker:latest
   volumes:
-    - ${PWD}/data:/data
+    - ${HOST_WORK_DIR}:/data
   environment:
     AMQP_QUEUE: "job_ism_manifest"
     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"

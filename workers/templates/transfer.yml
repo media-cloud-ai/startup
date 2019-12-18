@@ -3,7 +3,7 @@
 file_system:
   image: mediacloudai/rs_transfer_worker:latest
   volumes:
-    - ${PWD}/data:/data
+    - ${HOST_WORK_DIR}:/data
   environment:
     AMQP_QUEUE: "job_transfer"
     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"

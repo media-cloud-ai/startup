@@ -3,7 +3,7 @@
 command_line:
   image: mediacloudai/rs_command_line_worker:latest
   volumes:
-    - ${PWD}/data:/data
+    - ${HOST_WORK_DIR}:/data
   environment:
     AMQP_QUEUE: "job_command_line"
     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"

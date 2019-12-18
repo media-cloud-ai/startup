@@ -3,7 +3,7 @@
 acs:
   image: registry.ftven.net/media-cloud-ai/docker-acs-worker:1.0.0
   volumes:
-    - ${PWD}/data:/data
+    - ${HOST_WORK_DIR}:/data
   environment:
     AMQP_QUEUE: "job_acs"
     AMQP_HOSTNAME: "${AMQP_HOSTNAME}"
