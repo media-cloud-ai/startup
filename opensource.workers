@@ -1,0 +1,33 @@
+[
+	{
+		"name": "command_line",
+		"image": "mediacloudai/rs_command_line_worker:latest",
+		"vault": true
+	},
+	{
+		"name": "file_system",
+		"image": "mediacloudai/rs_file_system_worker:v0.2.1",
+		"vault": true
+	},
+	{
+		"name": "transfer",
+		"image": "mediacloudai/rs_transfer_worker:v0.1.2",
+		"vault": true
+	},
+	{
+		"name": "ffmpeg",
+		"image": "mediacloudai/rs_ffmpeg_worker:v0.0.1",
+		"vault": true
+	},
+	{
+		"name": "ism_manifest",
+		"image": "registry.ftven.net/media-cloud-ai/docker-acs-worker:1.0.0",
+		"vault": true,
+		"environment": [
+			{
+				"key": "MANIFEST_MODE",
+				"value": "ISM"
+			}
+		]
+	}
+]

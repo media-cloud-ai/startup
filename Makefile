@@ -98,8 +98,8 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 ###############
 
 workers-generate-cfg:
-	@$(call displayheader,$(CYAN_COLOR),"Generate docker-compose.yml for workers")
-	@./scripts/generate_workers_cfg.sh ${WORKERS_TO_START}
+	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
+	@./scripts/generate_workers_cfg.sh
 
 ###############
 ### STORAGE ###
@@ -117,6 +117,6 @@ check-openssl:
 generate-certs: check-openssl
 	@rm -rf certs/
 	@mkdir certs/
-	@$(call displayheader,$(CYAN_COLOR),"Generate certificate")
+	@$(call displayheader, $(CYAN_COLOR), "Generate certificate")
 	@openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"
 
