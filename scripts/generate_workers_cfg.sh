@@ -12,27 +12,27 @@ COMPOSITION+="version: \"3.6\"\n\n"
 COMPOSITION+="services:\n"
 
 add_section() {
-    COMPOSITION+="\t\t"$1":\n";
+    COMPOSITION+="        "$1":\n";
 }
 
 add_env_var() {
-    COMPOSITION+="\t\t\t"$1": \"\${"$1"}\"\n"
+    COMPOSITION+="            "$1": \"\${"$1"}\"\n"
 }
 
 add_string_env_var() {
-    COMPOSITION+="\t\t\t"$1": \""$2"\"\n"
+    COMPOSITION+="            "$1": \""$2"\"\n"
 }
 
 add_custom_env_var() {
-    COMPOSITION+="\t\t\t"$1": "$2"\n"
+    COMPOSITION+="            "$1": "$2"\n"
 }
 
 add_extra_env_var() {
-    COMPOSITION+="\t\t\t$1\n"
+    COMPOSITION+="            $1\n"
 }
 
 add_item() {
-    COMPOSITION+="\t\t\t- "$1"\n";
+    COMPOSITION+="            - "$1"\n";
 }
 
 generate_workers () {
@@ -41,8 +41,8 @@ generate_workers () {
             echo ${row} | base64 --decode | jq -r ${1}
         }
 
-        COMPOSITION+="\t"$(_jq '.name')":\n";
-        COMPOSITION+="\t\timage: "$(_jq '.image')"\n";
+        COMPOSITION+="    "$(_jq '.name')":\n";
+        COMPOSITION+="        image: "$(_jq '.image')"\n";
        
         add_section volumes
         add_item \${PWD}/data:/data
@@ -90,10 +90,10 @@ if test -f "$PRIVATE_WORKERS_FILENAME"; then
 fi
 
 COMPOSITION+="networks:\n"
-COMPOSITION+="\tworkers:\n"
-COMPOSITION+="\t\tdriver: bridge\n"
-COMPOSITION+="\tmediacloudai_global:\n"
-COMPOSITION+="\t\texternal: true\n"
+COMPOSITION+="    workers:\n"
+COMPOSITION+="        driver: bridge\n"
+COMPOSITION+="    mediacloudai_global:\n"
+COMPOSITION+="        external: true\n"
 
 
-echo -e $COMPOSITION > $TARGET_FILE
+echo -e "${COMPOSITION}" > $TARGET_FILE
