@@ -29,5 +29,10 @@
 				"value": "ISM"
 			}
 		]
+	},
+	{
+		"name": "adm_loudness",
+		"image": "mediaio/loudness_validator:latest",
+		"vault": true
 	}
 ]
