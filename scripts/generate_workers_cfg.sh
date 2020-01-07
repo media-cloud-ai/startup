@@ -45,7 +45,7 @@ generate_workers () {
         COMPOSITION+="        image: "$(_jq '.image')"\n";
        
         add_section volumes
-        add_item \${PWD}/data:/data
+        add_item \${SHARED_WORK_DIRECTORY}:/data
 
         add_section environment
         add_string_env_var AMQP_QUEUE job_$(_jq '.name')
@@ -71,8 +71,8 @@ generate_workers () {
 
         if [ $(_jq '.vault') = "true" ]; then
             add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_HOSTNAME}/api\"
-            add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_PASSWORD}\"
-            add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_EMAIL}\"
+            add_custom_env_var BACKEND_PASSWORD \"\${BACKEND_PASSWORD}\"
+            add_custom_env_var BACKEND_USERNAME \"\${BACKEND_USERNAME}\"
         fi
         add_section networks
         add_item mediacloudai_global
