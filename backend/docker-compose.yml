@@ -7,6 +7,7 @@ services:
     image: mediacloudai/ex_backend:dev
     volumes:
       - ${PWD}/dash:/dash
+      - ${PWD}/workflows:/workflows
     ports:
       - ${BACKEND_PORT}:80
     environment:
@@ -42,6 +43,7 @@ services:
       HOSTNAME: "${APP_DNS}"
       EXPOSED_DOMAIN_NAME: "${EXPOSED_DOMAIN_NAME}"
 
+      STEP_FLOW_WORKFLOW_DIRECTORY: "/workflows"
       VIDEO_FACTORY_ENDPOINT: "${VIDEO_FACTORY_ENDPOINT}"
       VOD_ENDPOINT: "${VOD_ENDPOINT}"
 
