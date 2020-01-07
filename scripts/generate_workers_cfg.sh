@@ -8,11 +8,16 @@ if ! [ -x "$(command -v jq)" ]; then
 fi
 
 COMPOSITION="--- \n"
-COMPOSITION+="version: \"3.6\"\n\n"
+# keep this version for GPU support of runtime flag, upper version are bugged
+COMPOSITION+="version: \"2.4\"\n\n"
 COMPOSITION+="services:\n"
 
 add_section() {
     COMPOSITION+="        "$1":\n";
+}
+
+add_section_with_value() {
+    COMPOSITION+="        "$1": "$2"\n";
 }
 
 add_env_var() {
@@ -42,8 +47,13 @@ generate_workers () {
         }
 
         COMPOSITION+="    "$(_jq '.name')":\n";
-        COMPOSITION+="        image: "$(_jq '.image')"\n";
+        # COMPOSITION+="        image: "$(_jq '.image')"\n";
+        add_section_with_value image $(_jq '.image')
        
+        if [ $(_jq '.gpu') = "true" ]; then
+            add_section_with_value runtime nvidia
+        fi
+
         add_section volumes
         add_item \${SHARED_WORK_DIRECTORY}:/data
 
@@ -73,6 +83,10 @@ generate_workers () {
             add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_HOSTNAME}/api\"
             add_custom_env_var BACKEND_PASSWORD \"\${BACKEND_PASSWORD}\"
             add_custom_env_var BACKEND_USERNAME \"\${BACKEND_USERNAME}\"
+        fi
+
+        if [ $(_jq '.gpu') = "true" ]; then
+            add_string_env_var NVIDIA_VISIBLE_DEVICES all
         fi
         add_section networks
         add_item mediacloudai_global
