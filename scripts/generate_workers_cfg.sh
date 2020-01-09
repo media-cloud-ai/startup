@@ -7,6 +7,12 @@ if ! [ -x "$(command -v jq)" ]; then
   exit 1
 fi
 
+
+displayworker() {
+    echo "--> ${1} (${2})"
+}
+
+
 COMPOSITION="--- \n"
 # keep this version for GPU support of runtime flag, upper version are bugged
 COMPOSITION+="version: \"2.4\"\n\n"
@@ -45,54 +51,62 @@ generate_workers () {
         _jq() {
             echo ${row} | base64 --decode | jq -r ${1}
         }
-
-        COMPOSITION+="    "$(_jq '.name')":\n";
-        # COMPOSITION+="        image: "$(_jq '.image')"\n";
-        add_section_with_value image $(_jq '.image')
-       
-        if [ $(_jq '.gpu') = "true" ]; then
-            add_section_with_value runtime nvidia
+        count=1
+        if [ $(_jq '.count!=null') = "true" ]; then
+            count=$(_jq '.count')
         fi
 
-        add_section volumes
-        add_item \${SHARED_WORK_DIRECTORY}:/data
+        displayworker $(_jq '.name') $count
 
-        add_section environment
-        add_string_env_var AMQP_QUEUE job_$(_jq '.name')
-        add_string_env_var RUST_LOG info
-        add_env_var AMQP_HOSTNAME
-        add_env_var AMQP_PORT
-        add_env_var AMQP_MANAGEMENT_PORT
-        add_env_var AMQP_USERNAME
-        add_env_var AMQP_PASSWORD
-        add_env_var AMQP_VHOST
-        add_env_var AMQP_TLS
+        for index in $(seq 1 $count); do
+            COMPOSITION+="    "$(_jq '.name')"_"$index":\n";
 
-        if [ `echo ${row} | base64 --decode | jq '.environment!=null'` == true ]; then
+            add_section_with_value image $(_jq '.image')
 
-            for extra_env in `echo ${row} | base64 --decode | jq '.environment[] | @base64'`; do
-                _jq2() {
-                    echo ${extra_env} | sed -e 's/^"//' -e 's/"$//' | base64 --decode | jq -r ${1}
-                }
+            if [ $(_jq '.gpu') = "true" ]; then
+                add_section_with_value runtime nvidia
+            fi
 
-                add_custom_env_var $(_jq2 '.key') "\""$(_jq2 '.value')"\""
-            done
-        fi
+            add_section volumes
+            add_item \${SHARED_WORK_DIRECTORY}:/data
 
-        if [ $(_jq '.vault') = "true" ]; then
-            add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_HOSTNAME}/api\"
-            add_custom_env_var BACKEND_PASSWORD \"\${BACKEND_PASSWORD}\"
-            add_custom_env_var BACKEND_USERNAME \"\${BACKEND_USERNAME}\"
-        fi
+            add_section environment
+            add_string_env_var AMQP_QUEUE job_$(_jq '.name')
+            add_string_env_var RUST_LOG info
+            add_env_var AMQP_HOSTNAME
+            add_env_var AMQP_PORT
+            add_env_var AMQP_MANAGEMENT_PORT
+            add_env_var AMQP_USERNAME
+            add_env_var AMQP_PASSWORD
+            add_env_var AMQP_VHOST
+            add_env_var AMQP_TLS
 
-        if [ $(_jq '.gpu') = "true" ]; then
-            add_string_env_var NVIDIA_VISIBLE_DEVICES all
-        fi
-        add_section networks
-        add_item mediacloudai_global
-        add_item workers
+            if [ `echo ${row} | base64 --decode | jq '.environment!=null'` == true ]; then
 
-        COMPOSITION+="\n";
+                for extra_env in `echo ${row} | base64 --decode | jq '.environment[] | @base64'`; do
+                    _jq2() {
+                        echo ${extra_env} | sed -e 's/^"//' -e 's/"$//' | base64 --decode | jq -r ${1}
+                    }
+
+                    add_custom_env_var $(_jq2 '.key') "\""$(_jq2 '.value')"\""
+                done
+            fi
+
+            if [ $(_jq '.vault') = "true" ]; then
+                add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_HOSTNAME}/api\"
+                add_custom_env_var BACKEND_PASSWORD \"\${BACKEND_PASSWORD}\"
+                add_custom_env_var BACKEND_USERNAME \"\${BACKEND_USERNAME}\"
+            fi
+
+            if [ $(_jq '.gpu') = "true" ]; then
+                add_string_env_var NVIDIA_VISIBLE_DEVICES all
+            fi
+            add_section networks
+            add_item mediacloudai_global
+            add_item workers
+
+            COMPOSITION+="\n";
+        done
     done
 }
 

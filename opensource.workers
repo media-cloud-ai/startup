@@ -12,7 +12,8 @@
 	{
 		"name": "transfer",
 		"image": "mediacloudai/rs_transfer_worker:v0.1.2",
-		"vault": true
+		"vault": true,
+		"count": 3
 	},
 	{
 		"name": "ffmpeg",
