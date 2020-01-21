@@ -8,7 +8,9 @@ export	# This will make all variables defined in envfile to becomes environment 
 
 include scripts/colors.make
 
-docker-compose-backbone = docker-compose -f backbone/docker-compose.yml -p $(PROJECT_NAME)_backbone
+EFK-COMPOSE=`[ $(EFK) = false ] && echo "" || echo "-f ek/docker-compose.yml"`
+
+docker-compose-backbone = docker-compose -f backbone/docker-compose.yml $(EFK-COMPOSE) -p $(PROJECT_NAME)_backbone
 docker-compose-backend = docker-compose -f backend/docker-compose.yml -p $(PROJECT_NAME)_backend
 docker-compose-workers = docker-compose -f workers/docker-compose.yml -p $(PROJECT_NAME)_workers
 docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJECT_NAME)_storage
@@ -37,9 +39,9 @@ docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJE
 	fi
 	@echo
 
-%-stop: 
+%-stop:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
-	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
+	@$(call displayheader,$(CYAN_COLOR),"${ns} STOPPING")
 	@if [ "$(docker-compose-$*)" != "" ]; then \
 		$(docker-compose-$*) stop; \
 	else \
@@ -47,7 +49,7 @@ docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJE
 	fi
 	@echo
 
-%-up: 
+%-up:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
 	@if [ "$(docker-compose-$*)" != "" ]; then \
@@ -63,7 +65,7 @@ clean: backend-clean workers-clean backbone-clean storage-clean
 
 init:
 	@$(call displayheader,$(CYAN_COLOR),"INIT")
-	@$(eval NETWORK=$(shell docker network list --filter name=^mediacloudai_global$$ --no-trunc --format '{{.Name}}'))	
+	@$(eval NETWORK=$(shell docker network list --filter name=^mediacloudai_global$$ --no-trunc --format '{{.Name}}'))
 	@[ "${NETWORK}" ] || docker network create mediacloudai_global 1>/dev/null
 	@$(call cecho,$(GREEN_COLOR), "Network mediacloudai_global created....")
 	@echo
@@ -97,15 +99,19 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 ### WORKERS ###
 ###############
 
-workers-generate-cfg:
+workers-generate-cfg-%:
 	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
-	@./scripts/generate_workers_cfg.sh
+	@if [ $(EFK) = false ]; then \
+		./scripts/generate_workers_cfg.sh $*; \
+	else \
+		./scripts/generate_workers_cfg.sh $* -EFK; \
+	fi
 
 ###############
 ### STORAGE ###
 ###############
 
-check-openssl: 
+check-openssl:
 	@$(eval openssl-bin := $(shell which openssl 2>/dev/null))
 	@if [ "${openssl-bin}" = "" ]; then \
 		echo "openssl not found"; \
@@ -119,4 +125,3 @@ generate-certs: check-openssl
 	@mkdir certs/
 	@$(call displayheader, $(CYAN_COLOR), "Generate certificate")
 	@openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"
-
