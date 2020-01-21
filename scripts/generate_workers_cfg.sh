@@ -1,12 +1,18 @@
 #!/bin/bash
 
 TARGET_FILE=workers/docker-compose.yml
+EFK_FLAG=false
 
 if ! [ -x "$(command -v jq)" ]; then
   echo 'Error: jq is not installed.' >&2
   exit 1
 fi
 
+if [ $# -ge 2 ]; then
+  if [ "$2" = "-EFK" ]; then
+    EFK_FLAG=true
+  fi
+fi
 
 displayworker() {
     echo "--> ${1} (${2})"
@@ -20,6 +26,12 @@ COMPOSITION+="services:\n"
 
 add_section() {
     COMPOSITION+="        "$1":\n";
+}
+
+depth() {
+    for i in $(seq "$1"); do
+      COMPOSITION+="  ";
+    done
 }
 
 add_section_with_value() {
@@ -61,6 +73,10 @@ generate_workers () {
         for index in $(seq 1 $count); do
             COMPOSITION+="    "$(_jq '.name')"_"$index":\n";
 
+            if [ $2 == "dev" ]; then
+              add_section_with_value network_mode host
+            fi
+
             add_section_with_value image $(_jq '.image')
 
             if [ $(_jq '.gpu') = "true" ]; then
@@ -101,20 +117,50 @@ generate_workers () {
             if [ $(_jq '.gpu') = "true" ]; then
                 add_string_env_var NVIDIA_VISIBLE_DEVICES all
             fi
-            add_section networks
-            add_item mediacloudai_global
-            add_item workers
+
+            if [ $2 = "master" ]; then
+              add_section networks
+              add_item mediacloudai_global
+              add_item workers
+            fi
+
+            if [ $EFK_FLAG = true ]; then
+              add_section logging
+              depth 1
+              add_section_with_value driver "fluentd"
+              depth 1
+              add_section options
+              depth 2
+              add_section_with_value fluentd-address "localhost:24224"
+              depth 2
+              add_section_with_value tag "$(_jq '.name').log"
+
+              add_section depends_on
+              add_item "fluentd"
+            fi
 
             COMPOSITION+="\n";
         done
     done
 }
 
-generate_workers ./opensource.workers
+generate_workers ./opensource.workers $1
 
 PRIVATE_WORKERS_FILENAME=./private.workers
 if test -f "$PRIVATE_WORKERS_FILENAME"; then
-    generate_workers $PRIVATE_WORKERS_FILENAME
+    generate_workers $PRIVATE_WORKERS_FILENAME $1
+fi
+
+if [ $EFK_FLAG = true ]; then
+  COMPOSITION+="    fluentd:\n"
+  COMPOSITION+="      build: ../fluentd\n"
+  COMPOSITION+="      volumes:\n"
+  COMPOSITION+="        - ../fluentd/conf:/fluentd/etc\n"
+  COMPOSITION+="      ports:\n"
+  COMPOSITION+="        - 24224:24224\n"
+  COMPOSITION+="        - 24224:24224/udp\n"
+  COMPOSITION+="      networks:\n"
+  COMPOSITION+="        - mediacloudai_global\n\n"
 fi
 
 COMPOSITION+="networks:\n"
