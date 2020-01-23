@@ -38,15 +38,26 @@ make workers-generate-cfg
 
 **WARNING: If all workers are already started, you must stop them before regenerate the docker-compose file using `make workers-stop`.**
 
+### EFK stack for monitoring
+
+In order to perform an applicative monitoring (viz. save and access the logs of the docker containers), an EFK (Elasticsearch-Fluentd-Kibana) stack is used. More informations on it [here](ek/README.md).
+
+### Enabling/Disabling of features
+
+It is possible to enable or disable features via the `.env` file :
+  - The EFK stack for monitoring is bind to the `EFK=true|false` environment variable.
+  - Environment setup for launching the Backend from startup or from the [ex_backend](https://github.com/media-cloud-ai/ex_backend) repo is bind to the `BACKEND_TYPE=startup|dev` environment variable.
+
 ## Domains
 
 ### Configuration
 
 Now, you must update your `/etc/hosts` file by adding the following domains with their respectives docker's IP (`make ip` to show containers's IPs):
 
-* local.backend.media-cloud.ai 
+* local.backend.media-cloud.ai
 * local.minio.media-cloud.ai
 * local.rabbitmq.media-cloud.ai
+* local.kibana.media-cloud.ai
 
 ### URLs
 
@@ -56,6 +67,7 @@ Now, you must update your `/etc/hosts` file by adding the following domains with
 | Backend   | Backend   | [http://local.backend.media-cloud.ai](http://local.backend.media-cloud.ai) |
 | Storage   | Minio     | [https://local.minio.media-cloud.ai:9000](https://local.minio.media-cloud.ai:9000) |
 | Storage   | Nginx VOD | [http://local.nginx-vod-module.media-cloud.ai](http://local.nginx-vod-module.media-cloud.ai) |
+| EFK       | Kibana    | [http://local.kibana.media-cloud.ai:5601](http://local.kibana.media-cloud.ai:5601) |
 
 ### Common commands
 
@@ -91,7 +103,7 @@ Commands below will be used for only for the backend stack:
 | `make backend-ps` | show all containers and there status |
 | `make backend-stop` | stop containers |
 
-### Workers commands 
+### Workers commands
 
 Commands below will be used for only for the workers stack:
 
@@ -102,7 +114,7 @@ Commands below will be used for only for the workers stack:
 | `make workers-ps` | show all containers and there status |
 | `make workers-stop` | stop containers |
 
-### Storage commands 
+### Storage commands
 
 Commands below will be used for only for the workers stack:
 

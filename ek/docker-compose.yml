@@ -14,6 +14,14 @@ services:
     networks:
       - mediacloudai_global
 
+  grafana:
+    image: grafana/grafana:6.5.3
+    ports:
+      - 3000:3000
+    user: "0"
+    networks:
+      - mediacloudai_global
+
   kibana:
     image: kibana:7.2.0
     ports:

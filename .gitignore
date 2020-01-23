@@ -1,5 +1,6 @@
 .env
 .env.backend
+.env.workers
 *.sql
 
 private.workers
@@ -7,3 +8,4 @@ private.workers
 data/
 storage-mca/
 certs/
+workflows/
