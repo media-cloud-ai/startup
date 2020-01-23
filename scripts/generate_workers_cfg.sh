@@ -118,7 +118,7 @@ generate_workers () {
                 add_string_env_var NVIDIA_VISIBLE_DEVICES all
             fi
 
-            if [ $2 = "master" ]; then
+            if [ $2 = "startup" ]; then
               add_section networks
               add_item mediacloudai_global
               add_item workers
@@ -126,14 +126,10 @@ generate_workers () {
 
             if [ $EFK_FLAG = true ]; then
               add_section logging
-              depth 1
-              add_section_with_value driver "fluentd"
-              depth 1
-              add_section options
-              depth 2
-              add_section_with_value fluentd-address "localhost:24224"
-              depth 2
-              add_section_with_value tag "$(_jq '.name').log"
+              depth 1; add_section_with_value driver "fluentd"
+              depth 1; add_section options
+              depth 2; add_section_with_value fluentd-address "localhost:24224"
+              depth 2; add_section_with_value tag "$(_jq '.name').log"
 
               add_section depends_on
               add_item "fluentd"
