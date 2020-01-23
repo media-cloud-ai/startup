@@ -99,7 +99,7 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 ### WORKERS ###
 ###############
 
-workers-generate-cfg:
+workers-generate-cfg-%:
 	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
 	@if [ $(EFK) = false ]; then \
 		./scripts/generate_workers_cfg.sh $(BACKEND_TYPE); \
