@@ -12,7 +12,7 @@ In this stack, [**Grafana**](https://grafana.com/) is also used for the alerting
 
 ## Configuration
 
-Elasticsearch, Kibana and Grafana are built from the docker-compose of the `ek` directory. Fluentd is built from the docker-compose of the `workers` directory.
+Elasticsearch, Kibana and Grafana are built from the docker-compose of the `monitoring` directory. Fluentd is built from the docker-compose of the `workers` directory.
 
 Fluentd Dockerfile and configuration file are located respectively in `fluentd` and `fluentd/conf`.
 

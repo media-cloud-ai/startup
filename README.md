@@ -40,7 +40,7 @@ make workers-generate-cfg
 
 ### EFK stack for monitoring
 
-In order to perform an applicative monitoring (viz. save and access the logs of the docker containers), an EFK (Elasticsearch-Fluentd-Kibana) stack is used. More informations on it [here](ek/README.md).
+In order to perform an applicative monitoring (viz. save and access the logs of the docker containers), an EFK (Elasticsearch-Fluentd-Kibana) stack is used. A complete description on it is placed in [monitoring](monitoring/README.md) folder.
 
 ### Enabling/Disabling of features
 

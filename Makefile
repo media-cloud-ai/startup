@@ -8,7 +8,7 @@ export	# This will make all variables defined in envfile to becomes environment 
 
 include scripts/colors.make
 
-EFK-COMPOSE=`[ $(EFK) = false ] && echo "" || echo "-f ek/docker-compose.yml"`
+EFK-COMPOSE=`[ $(EFK) = false ] && echo "" || echo "-f monitoring/docker-compose.yml"`
 
 docker-compose-backbone = docker-compose -f backbone/docker-compose.yml $(EFK-COMPOSE) -p $(PROJECT_NAME)_backbone
 docker-compose-backend = docker-compose -f backend/docker-compose.yml -p $(PROJECT_NAME)_backend
