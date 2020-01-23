@@ -4,7 +4,7 @@ version: "3.6"
 
 services:
   backend:
-    image: mediacloudai/ex_backend:dev
+    image: mediacloudai/ex_backend:latest
     volumes:
       - ${PWD}/dash:/dash
       - ${PWD}/workflows:/workflows
