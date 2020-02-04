@@ -77,7 +77,13 @@ generate_workers () {
               add_section_with_value network_mode host
             fi
 
-            add_section_with_value image $(_jq '.image')
+            if [ $(_jq '.image') != null ]; then
+              add_section_with_value image $(_jq '.image')
+            elif [ $(_jq '.build') != null ]; then
+              add_section_with_value build $(_jq '.build')
+            else
+              echo "WARNING : No image nor build were given !"
+            fi
 
             if [ $(_jq '.gpu') = "true" ]; then
                 add_section_with_value runtime nvidia
