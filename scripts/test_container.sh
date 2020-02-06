@@ -8,7 +8,6 @@ fi
 
 hostname="$(printenv ${service}_HOSTNAME)"
 port="$(printenv ${service}_PORT)"
-#telnet ${hostname} ${port}
 ping -q -c 1 ${hostname}
 
 exit $?

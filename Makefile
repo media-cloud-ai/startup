@@ -104,8 +104,12 @@ status:
 	  docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
 	  	docker cp ./scripts/test_container.sh $$CONTAINER:/; \
 	  	echo -n "$$CONTAINER \t to $$SERVICE ... " ; \
-		status="$$(docker exec -t $$CONTAINER bash -c 'chmod +x /test_container.sh; /test_container.sh $${SERVICE} && echo "ok" || echo "fail"')"; \
-		echo $$status; \
+		status="$$(docker exec -t $$CONTAINER bash -c 'chmod +x /test_container.sh; /test_container.sh $${SERVICE} && echo 0 || echo 1')"; \
+		if [ $$status = "0" ]; then \
+			echo "\033[32mPass\e[0m"; \
+		else \
+			echo "\033[31mFail\e[0m"; \
+		fi; \
 	  done \
 	done
 
