@@ -52,7 +52,16 @@ else
 endif
 	@echo
 
-%-up:
+%-status:
+	@if [ "$(docker ps -q -f name=$*)" != ""]; then \
+		echo "Known '$*'"; \
+	else \
+		echo "Unknown '$*'"; \
+	fi
+	@echo
+	
+
+%-up: init
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@if [ "$*" = "workers" ] || [ "$*" = "vault" ]; then \
 		make -s $*-generate-cfg; \
@@ -90,6 +99,19 @@ up: init backbone-up backend-up workers-up generate-certs storage-up vault-up ip
 
 stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop vault-stop
 
+status:
+	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}); do \
+	  docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
+	  	docker cp ./scripts/test_container.sh $$CONTAINER:/; \
+	  	echo -n "$$CONTAINER \t to $$SERVICE ... " ; \
+		status="$$(docker exec -t $$CONTAINER bash -c 'chmod +x /test_container.sh; /test_container.sh $${SERVICE} && echo "ok" || echo "fail"')"; \
+		echo $$status; \
+	  done \
+	done
+
+# port= $(SERVICE)_PORT \
+# echo $$CONTAINER connection to $$SERVICE with $$HOSTNAME; \
+# docker exec $$CONTAINER printenv $${SERVICE}_HOSTNAME $${SERVICE}_PORT | xargs | awk '{gsub(/\s+/,":");}1'| xargs -n1 ping -c 1 |  echo $?; \
 ################
 ### BACKBONE ###
 ################
