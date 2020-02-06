@@ -103,8 +103,9 @@ status:
 	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}); do \
 	  docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
 	  	docker cp ./scripts/test_container.sh $$CONTAINER:/; \
+	  	docker exec $$CONTAINER bash -c "chmod +x /test_container.sh"; \
 	  	echo -n "$$CONTAINER \t to $$SERVICE ... " ; \
-		status="$$(docker exec -t $$CONTAINER bash -c 'chmod +x /test_container.sh; /test_container.sh $${SERVICE} && echo 0 || echo 1')"; \
+		status="$$(docker exec $$CONTAINER /test_container.sh $${SERVICE} && echo 0 || echo 1)"; \
 		if [ $$status = "0" ]; then \
 			echo "\033[32mPass\e[0m"; \
 		else \
