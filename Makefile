@@ -59,7 +59,7 @@ endif
 		echo "Unknown '$*'"; \
 	fi
 	@echo
-	
+
 
 %-up: init
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
@@ -100,23 +100,23 @@ up: init backbone-up backend-up workers-up generate-certs storage-up vault-up ip
 stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop vault-stop
 
 status:
-	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}); do \
-	  docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
-	  	docker cp ./scripts/test_container.sh $$CONTAINER:/; \
-	  	docker exec $$CONTAINER bash -c "chmod +x /test_container.sh"; \
-	  	echo -n "$$CONTAINER \t to $$SERVICE ... " ; \
-		status="$$(docker exec $$CONTAINER /test_container.sh $${SERVICE} && echo 0 || echo 1)"; \
-		if [ $$status = "0" ]; then \
-			echo "\033[32mPass\e[0m"; \
-		else \
-			echo "\033[31mFail\e[0m"; \
-		fi; \
-	  done \
+	@$(call displayheader,$(CYAN_COLOR),"CHECKING SERVICES STATUS")
+	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}) ; do \
+		docker cp ./scripts/test_container.sh $$CONTAINER:/ ; \
+		docker exec $$CONTAINER chmod +x /test_container.sh; \
+		docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
+			$(call becho,$(CYAN_COLOR), "$$CONTAINER to $$SERVICE ... ") ; \
+			status="$$(docker exec $$CONTAINER /test_container.sh $${SERVICE} && echo 0 || echo 1)"; \
+			if [ $$status = "0" ]; then \
+				$(call becho,$(GREEN_COLOR), "Pass"); \
+			else \
+				$(call becho,$(RED_COLOR), "Fail"); \
+			fi; \
+		done; \
+		docker exec $$CONTAINER [ -e /test_container.sh ] && rm -f /test_container.sh; \
 	done
 
-# port= $(SERVICE)_PORT \
-# echo $$CONTAINER connection to $$SERVICE with $$HOSTNAME; \
-# docker exec $$CONTAINER printenv $${SERVICE}_HOSTNAME $${SERVICE}_PORT | xargs | awk '{gsub(/\s+/,":");}1'| xargs -n1 ping -c 1 |  echo $?; \
+
 ################
 ### BACKBONE ###
 ################
