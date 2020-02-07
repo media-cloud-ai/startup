@@ -95,9 +95,9 @@ stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop
 
 status:
 	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}); do \
+	  docker cp ./scripts/test_container.sh $$CONTAINER:/; \
+	  docker exec $$CONTAINER chmod +x /test_container.sh; \
 	  docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
-	  	docker cp ./scripts/test_container.sh $$CONTAINER:/; \
-	  	docker exec $$CONTAINER bash -c "chmod +x /test_container.sh"; \
 	  	echo -n "$$CONTAINER \t to $$SERVICE ... " ; \
 		status="$$(docker exec $$CONTAINER /test_container.sh $${SERVICE} && echo 0 || echo 1)"; \
 		if [ $$status = "0" ]; then \
@@ -105,7 +105,8 @@ status:
 		else \
 			echo "\033[31mFail\e[0m"; \
 		fi; \
-	  done \
+	  done; \
+	  docker exec $$CONTAINER rm /test_container.sh; \
 	done
 
 # port= $(SERVICE)_PORT \
