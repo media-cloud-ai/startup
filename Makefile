@@ -53,6 +53,7 @@ docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJE
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
 	@if [ "$(docker-compose-$*)" != "" ]; then \
+		$(docker-compose-$*) build --no-cache; \
 		$(docker-compose-$*) up -d --remove-orphans; \
 	else \
 		echo "Unknown '$*'"; \
