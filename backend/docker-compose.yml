@@ -4,7 +4,7 @@ version: "3.6"
 
 services:
   backend:
-    image: mediacloudai/ex_backend:latest
+    image: mediacloudai/ex_backend:${BACKEND_VERSION}
     volumes:
       - ${PWD}/dash:/dash
       - ${PWD}/workflows:/workflows
@@ -60,7 +60,7 @@ services:
       - database
 
   database:
-    image: "postgres:9.6.1"
+    image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_USER: "${DATABASE_USERNAME}"
       POSTGRES_PASSWORD: "${DATABASE_PASSWORD}"
