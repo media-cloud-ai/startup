@@ -4,7 +4,7 @@ version: "3.6"
 
 services:
   rabbitmq:
-    image: rabbitmq:${RABBITMQ_VERSION}
+    image: ${RABBITMQ_IMAGE}:${RABBITMQ_VERSION}
     networks:
       - backbone
       - mediacloudai_global
