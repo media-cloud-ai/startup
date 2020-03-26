@@ -35,7 +35,7 @@ services:
       AMQP_PASSWORD: "${AMQP_PASSWORD}"
       AMQP_VIRTUAL_HOST: "${AMQP_VIRTUAL_HOST}"
 
-      WORK_DIR: "/data"
+      WORKERS_WORK_DIRECTORY: "/data"
       ROOT_DASH_CONTENT: "/dash"
 
       ROOT_EMAIL: "${ROOT_EMAIL}"
