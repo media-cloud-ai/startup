@@ -4,18 +4,16 @@ version: "3.6"
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    image: ${ELASTICSEARCH_IMAGE}:${ELASTICSEARCH_VERSION}
     environment:
       - "discovery.type=single-node"
-    expose:
-      - 9200
     ports:
       - 9200:9200
     networks:
       - mediacloudai_global
 
   grafana:
-    image: grafana/grafana:6.5.3
+    image: ${GRAFANA_IMAGE}:${GRAFANA_VERSION}
     ports:
       - 3000:3000
     user: "0"
@@ -23,7 +21,7 @@ services:
       - mediacloudai_global
 
   kibana:
-    image: kibana:7.2.0
+    image: ${KIBANA_IMAGE}:${KIBANA_VERSION}
     ports:
       - 5601:5601
     networks:
