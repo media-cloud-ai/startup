@@ -4,7 +4,7 @@ version: "3.6"
 
 services:
   backend:
-    image: mediacloudai/ex_backend:latest
+    image: ${BACKEND_IMAGE}:${BACKEND_VERSION}
     volumes:
       - ${PWD}/dash:/dash
       - ${PWD}/workflows:/workflows
@@ -33,9 +33,9 @@ services:
       AMQP_MANAGEMENT_PORT: "${AMQP_MANAGEMENT_PORT}"
       AMQP_USERNAME: "${AMQP_USERNAME}"
       AMQP_PASSWORD: "${AMQP_PASSWORD}"
-      AMQP_VHOST: "${AMQP_VHOST}"
+      AMQP_VIRTUAL_HOST: "${AMQP_VIRTUAL_HOST}"
 
-      WORK_DIR: "/data"
+      WORKERS_WORK_DIRECTORY: "/data"
       ROOT_DASH_CONTENT: "/dash"
 
       ROOT_EMAIL: "${ROOT_EMAIL}"
@@ -60,7 +60,7 @@ services:
       - database
 
   database:
-    image: "postgres:9.6.1"
+    image: ${POSTGRES_IMAGE}:${POSTGRES_VERSION}
     environment:
       POSTGRES_USER: "${DATABASE_USERNAME}"
       POSTGRES_PASSWORD: "${DATABASE_PASSWORD}"
