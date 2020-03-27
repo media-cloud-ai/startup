@@ -36,6 +36,7 @@ services:
       AMQP_VIRTUAL_HOST: "${AMQP_VIRTUAL_HOST}"
 
       WORKERS_WORK_DIRECTORY: "/data"
+      WORK_DIR: "/data"     # This variable is deprecated but it still here to stay compliant with olders releases.
       ROOT_DASH_CONTENT: "/dash"
 
       ROOT_EMAIL: "${ROOT_EMAIL}"
