@@ -90,7 +90,12 @@ generate_workers () {
             fi
 
             add_section volumes
-            add_item \${SHARED_WORK_DIRECTORY}:/data
+            #add_item \${SHARED_WORK_DIRECTORY}:/data
+            shared_volumes=$(echo ${SHARED_WORK_DIRECTORIES} | tr ";" "\n")
+            for shared_volume in $shared_volumes
+            do
+                add_item ${shared_volume}
+            done
 
             add_section environment
             add_string_env_var AMQP_QUEUE job_$(_jq '.name')
