@@ -54,8 +54,8 @@ target_regex=^make: .*?$$
 
 %-up: 
 	@$(eval output := $(shell make -n $*-generate-cfg 2>&1 | head -1))
-	@$(eval ttt := $(shell echo ${output} | egrep "${target_regex}" -))
-	@if [ "${ttt}" = "" ]; then \
+	@$(eval check_output := $(shell echo ${output} | egrep "${target_regex}" -))
+	@if [ "${check_output}" = "" ]; then \
 	    make -s $*-generate-cfg; \
 	fi
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
