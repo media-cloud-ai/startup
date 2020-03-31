@@ -89,13 +89,17 @@ generate_workers () {
                 add_section_with_value runtime nvidia
             fi
 
-            add_section volumes
-            #add_item \${SHARED_WORK_DIRECTORY}:/data
-            shared_volumes=$(echo ${SHARED_WORK_DIRECTORIES} | tr ";" "\n")
-            for shared_volume in $shared_volumes
-            do
-                add_item ${shared_volume}
-            done
+            if [ ! -z "${SHARED_WORK_DIRECTORIES}" ]; then
+              add_section volumes
+              shared_volumes=$(echo ${SHARED_WORK_DIRECTORIES} | tr ";" "\n")
+              for shared_volume in $shared_volumes
+              do
+                  add_item ${shared_volume}
+              done
+            else
+              add_section volumes
+              add_item \${SHARED_WORK_DIRECTORY}:/data
+            fi
 
             add_section environment
             add_string_env_var AMQP_QUEUE job_$(_jq '.name')
