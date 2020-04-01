@@ -1,9 +1,9 @@
 [
 	{
-                "name": "transfer_optim",
-                "image": "mediacloudai/aws_cli_worker:v0.1.0",
-                "count": 1,
-                "vault": false
+        "name": "aws_cli",
+        "image": "mediacloudai/aws_cli_worker:v0.1.0",
+        "count": 1,
+        "vault": false
 	},
 	{
 		"name": "file_system",
