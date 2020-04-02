@@ -109,7 +109,13 @@ generate_workers () {
             add_env_var AMQP_MANAGEMENT_PORT
             add_env_var AMQP_USERNAME
             add_env_var AMQP_PASSWORD
-            add_env_var AMQP_VIRTUAL_HOST
+            if [ ! -z "${AMQP_VIRTUAL_HOST}" ]; then
+              add_env_var AMQP_VIRTUAL_HOST
+            fi
+            # AMQP_VHOST will be deprecated soon.
+            if [ ! -z "${AMQP_VHOST}" ]; then
+              add_env_var AMQP_VHOST
+            fi
             add_env_var AMQP_TLS
 
             if [ `echo ${row} | base64 --decode | jq '.environment!=null'` == true ]; then
