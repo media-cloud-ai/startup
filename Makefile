@@ -63,7 +63,7 @@ endif
 
 %-up: init
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
-	@if [ "$*" = "backbone" ] || [ "$*" = "vault" ] || [ "$*" = "workers" ]; then \
+	@if [ "$*" != "storage" ]; then \
 		make -s $*-generate-cfg; \
   fi
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
@@ -121,28 +121,51 @@ status:
 ### BACKBONE ###
 ################
 
+backbone-generate-cfg:
+	@$(call displayheader, $(CYAN_COLOR), "Generate RabbitMQ configuration file")
+	@envsubst < ./backbone/config/rabbitmq.conf.tpl > ./backbone/config/rabbitmq.conf
+	@$(call cecho,$(GREEN_COLOR), "File backbone/config/rabbitmq.conf templated !")
+ifeq ($(EFK), true)
+	# Needed as elastic container is with user 1000
+	@mkdir -p monitoring/docker-data-volumes
+	@mkdir -p monitoring/docker-data-volumes/elasticsearch
+	@mkdir -p monitoring/docker-data-volumes/grafana
+	@$(call cecho,$(GREEN_COLOR), "Monitoring data directories created !")
+endif
+	@echo
+
 ###############
 ### BACKEND ###
 ###############
 
+backend-generate-cfg:
+	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for Backend")
+ifeq ($(EFK), false)
+	@./scripts/generate_backend_cfg.sh "$(BACKEND_TYPE)"
+else
+	@./scripts/generate_backend_cfg.sh "$(BACKEND_TYPE)" -EFK
+endif
+	@$(call cecho,$(GREEN_COLOR), "File backend/docker-compose.yml templated !")
+	@echo
+
 backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 	@$(docker-compose-backend) exec -T database pg_dump -U${DATABASE_USERNAME} ${DATABASE_NAME} > ${DATABASE_NAME}.sql
+	@$(call cecho,$(GREEN_COLOR), "Database dumped in ${DATABASE_NAME}.sql !")
+	@echo
 
 ###############
 ### WORKERS ###
 ###############
 
-backbone-generate-cfg:
-	@$(call displayheader, $(CYAN_COLOR), "Generate RabbitMQ configuration file")
-	@envsubst < ./backbone/config/rabbitmq.conf.tpl > ./backbone/config/rabbitmq.conf
-
 workers-generate-cfg:
 	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
 ifeq ($(EFK), false)
-	./scripts/generate_workers_cfg.sh $(BACKEND_TYPE)
+	@./scripts/generate_workers_cfg.sh "$(BACKEND_TYPE)" "$(SHARED_WORK_DIRECTORIES)" "$(LOG_LEVEL)"
 else
-	./scripts/generate_workers_cfg.sh $(BACKEND_TYPE) -EFK
+	@./scripts/generate_workers_cfg.sh "$(BACKEND_TYPE)" "$(SHARED_WORK_DIRECTORIES)" "$(LOG_LEVEL)" -EFK
 endif
+	@$(call cecho,$(GREEN_COLOR), "File workers/docker-compose.yml templated !")
+	@echo
 
 ###############
 ###  VAULT  ###
@@ -162,10 +185,10 @@ vault-generate-cfg:
 check-openssl:
 	@$(eval openssl-bin := $(shell which openssl 2>/dev/null))
 ifeq ($(openssl-bin), "")
-	echo "openssl not found"
+	@$(call cecho,$(RED_COLOR), "openssl not found")
 	exit -1
 endif
-	@echo "openssl found in ${openssl-bin}"
+	@$(call cecho,$(GREEN_COLOR), "openssl found in ${openssl-bin}")
 	@echo
 
 generate-certs: check-openssl
@@ -173,3 +196,4 @@ generate-certs: check-openssl
 	@mkdir certs/
 	@$(call displayheader, $(CYAN_COLOR), "Generate certificate")
 	@openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout certs/private.key -out certs/public.crt -subj "/C=FR/ST=Paris/L=Paris/O=WorldCompany/OU=mediacloudai/CN=*.media-cloud.ai"
+	@echo
