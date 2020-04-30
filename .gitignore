@@ -9,3 +9,5 @@ data/
 storage-mca/
 certs/
 workflows/
+monitoring/docker-data-volumes/elasticsearch
+monitoring/docker-data-volumes/grafana
