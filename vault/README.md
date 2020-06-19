@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Vault is an open-source tool used for the storage and management of secrets. The secrets are embedding all personal or sensitive informations as credentials, SSH keys, login/password, AWS keys, API tokens, etc. Vault helps resolving the following management issues :
+Vault is an open-source tool used for the storage and management of secrets. The secrets are embedding all personal or sensitive informations as credentials, SSH keys, login/password, AWS keys, API tokens, etc. Vault has roughly the following architecture :
 
 | Backend | Use |
 |---------------|----------------|
