@@ -94,7 +94,7 @@ generate_workers () {
               shared_volumes=$(echo ${SHARED_WORK_DIRECTORIES} | tr ";" "\n")
               for shared_volume in $shared_volumes
               do
-                  add_item ${shared_volume}
+                  add_item ${shared_volume}:/data
               done
             else
               add_section volumes
