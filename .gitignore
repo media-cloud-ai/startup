@@ -1,7 +1,9 @@
 .env
 .env.backend
 .env.workers
+.env.vault
 *.sql
+!init_tables_postgres.sql
 
 private.workers
 

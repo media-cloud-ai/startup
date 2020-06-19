@@ -4,6 +4,7 @@ include .env.docker
 include .env
 include .env.backend
 include .env.workers
+include .env.vault
 
 export	# This will make all variables defined in envfile to becomes environment variables.
 
@@ -15,6 +16,7 @@ docker-compose-backbone = docker-compose -f backbone/docker-compose.yml $(EFK-CO
 docker-compose-backend = docker-compose -f backend/docker-compose.yml -p $(PROJECT_NAME)_backend
 docker-compose-workers = docker-compose -f workers/docker-compose.yml -p $(PROJECT_NAME)_workers
 docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJECT_NAME)_storage
+docker-compose-vault = docker-compose -f vault/docker-compose.yml -p $(PROJECT_NAME)_vault
 
 target_regex=^make: .*?$$
 
@@ -52,7 +54,7 @@ target_regex=^make: .*?$$
 	fi
 	@echo
 
-%-up: 
+%-up:
 	@$(eval output := $(shell make -n $*-generate-cfg 2>&1 | head -1))
 	@$(eval check_output := $(shell echo ${output} | egrep "${target_regex}" -))
 	@if [ "${check_output}" = "" ]; then \
@@ -86,11 +88,11 @@ ip:
 	  echo " "; \
 	done
 
-ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps
+ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps vault-ps
 
-up: init backbone-up backend-up workers-up generate-certs storage-up ip
+up: init backbone-up backend-up workers-up generate-certs storage-up vault-up ip
 
-stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop
+stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop vault-stop
 
 ################
 ### BACKBONE ###
@@ -114,6 +116,22 @@ workers-generate-cfg:
 	else \
 		./scripts/generate_workers_cfg.sh $(BACKEND_TYPE) -EFK; \
 	fi
+
+###############
+###  VAULT  ###
+###############
+
+vault-generate-cfg:
+	@$(call displayheader,$(CYAN_COLOR),"${ns} SETUP VAULT")
+	@if [ ! -d "vault/vault/data" ]; then mkdir vault/vault/data; fi
+	@if [ ! -d "vault/vault/logs" ]; then mkdir vault/vault/logs; fi
+	@if [ ! -d "vault/vault/policies" ]; then mkdir vault/vault/policies; fi
+	@echo "CREATE USER ${POSTGRES_USER} WITH PASSWORD '${POSTGRES_PASSWORD}'; ALTER USER ${POSTGRES_USER} WITH SUPERUSER; CREATE DATABASE ${POSTGRES_USER}" > vault/sql/create_user.sql
+	@docker cp vault/sql/create_user.sql ${POSTGRES_CONTAINER}:/
+	@docker cp vault/sql/init_tables_postgres.sql ${POSTGRES_CONTAINER}:/
+	@rm vault/sql/create_*.sql
+	@docker exec -ti ${POSTGRES_CONTAINER} bash -c "psql -U postgres -f create_user.sql && psql -U vault -f init_tables_postgres.sql"
+
 
 ###############
 ### STORAGE ###
