@@ -52,6 +52,7 @@ services:
       EXPOSED_DOMAIN_NAME: "${EXPOSED_DOMAIN_NAME}"
 
       STEP_FLOW_WORKFLOW_DIRECTORY: "/workflows"
+      WORKFLOW_DIR: "${WORKFLOW_DIR}"
       VIDEO_FACTORY_ENDPOINT: "${VIDEO_FACTORY_ENDPOINT}"
       VOD_ENDPOINT: "${VOD_ENDPOINT}"
 
@@ -76,6 +77,7 @@ services:
     labels:
       - "traefik.enable=false"
     networks:
+      - mediacloudai_global
       - backend
 
 volumes:
