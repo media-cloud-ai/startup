@@ -157,6 +157,10 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 ### WORKERS ###
 ###############
 
+backbone-generate-cfg:
+	@$(call displayheader, $(CYAN_COLOR), "Generate RabbitMQ configuration file")
+	@envsubst < ./backbone/rabbitmq.conf.tpl > ./backbone/rabbitmq.conf
+
 workers-generate-cfg:
 	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
 ifeq ($(EFK), false)
