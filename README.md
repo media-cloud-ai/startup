@@ -68,7 +68,7 @@ Now, you must update your `/etc/hosts` file by adding the following domains with
 | Storage   | Minio     | [https://local.minio.media-cloud.ai:9000](https://local.minio.media-cloud.ai:9000) |
 | Storage   | Nginx VOD | [http://local.nginx-vod-module.media-cloud.ai](http://local.nginx-vod-module.media-cloud.ai) |
 | EFK       | Kibana    | [http://local.kibana.media-cloud.ai:5601](http://local.kibana.media-cloud.ai:5601) |
-| Vault       | Vault    | [http://local.vault.media-cloud.ai:8200](http://local.vault.media-cloud.ai:8200) |
+| Vault     | Vault     | [http://local.vault.media-cloud.ai:8200](http://local.vault.media-cloud.ai:8200) |
 
 ### Common commands
 
