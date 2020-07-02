@@ -56,7 +56,7 @@ target_regex=^make: .*?$$
 	@$(eval output := $(shell make -n $*-generate-cfg 2>&1 | head -1))
 	@$(eval check_output := $(shell echo ${output} | egrep "${target_regex}" -))
 	@if [ "${check_output}" = "" ]; then \
-	    make -s $*-generate-cfg; \
+		make -s $*-generate-cfg; \
 	fi
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
@@ -81,9 +81,9 @@ init:
 ip:
 	@$(call cecho,$(GREEN_COLOR),"GATEWAY mediacloudai_global: $(shell docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' mediacloudai_global)")
 	@for CONTAINER in $(shell docker ps -a --format '{{.Names}}' -f NAME=${PROJECT_NAME}); do \
-	  echo "$$CONTAINER"; \
-	  echo "\t$$(docker inspect -f '{{range $$n, $$conf := .NetworkSettings.Networks}} {{$$conf.IPAddress}}#{{$$n}}\n\t{{end}}' $$CONTAINER)" | column -t -s "#"; \
-	  echo " "; \
+		echo "$$CONTAINER"; \
+		echo "\t$$(docker inspect -f '{{range $$n, $$conf := .NetworkSettings.Networks}} {{$$conf.IPAddress}}#{{$$n}}\n\t{{end}}' $$CONTAINER)" | column -t -s "#"; \
+		echo " "; \
 	done
 
 ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps
