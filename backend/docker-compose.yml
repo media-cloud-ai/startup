@@ -6,7 +6,8 @@ services:
   workflows:
     image: ${WORKFLOWS_IMAGE}:${WORKFLOWS_VERSION}
     volumes:
-      - workflows:/workflows
+      - workflows:/workflows-volume
+    command: "cp -R /workflows/. /workflows-volume"
 
   backend:
     image: ${BACKEND_IMAGE}:${BACKEND_VERSION}
