@@ -3,11 +3,15 @@
 version: "3.6"
 
 services:
+  workflows:
+    image: ${WORKFLOWS_IMAGE}:${WORKFLOWS_VERSION}
+    volumes:
+      - workflows:/workflows
+
   backend:
     image: ${BACKEND_IMAGE}:${BACKEND_VERSION}
     volumes:
-      - ${PWD}/dash:/dash
-      - ${PWD}/workflows:/workflows
+      - workflows:/workflows
     ports:
       - ${BACKEND_PORT}:80
     environment:
@@ -72,6 +76,9 @@ services:
       - "traefik.enable=false"
     networks:
       - backend
+
+volumes:
+  workflows:
 
 networks:
   backend:
