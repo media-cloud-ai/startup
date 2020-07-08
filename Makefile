@@ -16,8 +16,6 @@ docker-compose-backend = docker-compose -f backend/docker-compose.yml -p $(PROJE
 docker-compose-workers = docker-compose -f workers/docker-compose.yml -p $(PROJECT_NAME)_workers
 docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJECT_NAME)_storage
 
-target_regex=^make: .*?$$
-
 ##############
 ### COMMON ###
 ##############
@@ -52,10 +50,9 @@ target_regex=^make: .*?$$
 	fi
 	@echo
 
-%-up: 
-	@$(eval output := $(shell make -n $*-generate-cfg 2>&1 | head -1))
-	@$(eval check_output := $(shell echo ${output} | egrep "${target_regex}" -))
-	@if [ "${check_output}" = "" ]; then \
+%-up:
+	@$(eval check_output := `make -n $*-generate-cfg 2>&1 | head -1 | egrep \^make`)
+	@if [ "${check_output}" == "" ]; then \
 		make -s $*-generate-cfg; \
 	fi
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
