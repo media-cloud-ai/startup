@@ -1,44 +1,26 @@
 [
 	{
-        "name": "aws_cli",
-        "image": "mediacloudai/aws_cli_worker:v0.1.0",
-        "count": 1,
-        "vault": false
-	},
-	{
 		"name": "file_system",
-		"image": "mediacloudai/rs_file_system_worker:v1.2.0",
+		"image": "mediacloudai/rs_file_system_worker:1.2.3",
 		"count": 1,
 		"vault": false
 	},
 	{
 		"name": "transfer",
-		"image": "mediacloudai/rs_transfer_worker:v0.1.5",
+		"image": "mediacloudai/rs_transfer_worker:0.3.1",
 		"vault": true,
 		"count": 3
 	},
 	{
-		"name": "transfer_optim",
-		"image": "mediacloudai/aws_cli_worker:v0.1.0",
-		"vault": false,
-		"count": 1
-	},
-	{
 		"name": "ffmpeg",
-		"image": "mediacloudai/rs_ffmpeg_worker:v0.0.2",
+		"image": "mediacloudai/rs_ffmpeg_worker:0.0.5",
 		"count": 1,
 		"vault": false
 	},
 	{
-		"name": "ism_manifest",
-		"image": "mediacloudai/rs_manifest_worker:v0.4.0",
+		"name": "object_detection",
+		"image": "mediacloudai/py_object_detection_worker:0.0.1",
 		"count": 1,
-		"vault": false,
-		"environment": [
-			{
-				"key": "MANIFEST_MODE",
-				"value": "ISM"
-			}
-		]
+		"vault": false
 	}
 ]
