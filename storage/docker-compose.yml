@@ -35,6 +35,33 @@ services:
       - mediacloudai_global
       - storage-mca
 
+  http_nginx:
+    image: ${HTTP_NGINX_IMAGE}:${HTTP_NGINX_VERSION}
+    volumes:
+      - ${PWD}/storage-mca:/data/
+    ports:
+      - "8082:80"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      - mediacloudai_global
+      - storage-mca
+
+  ftp_vsftpd:
+    image: ${FTP_SERVER_IMAGE}:${FTP_SERVER_VERSION}
+    volumes:
+      - ${PWD}/storage-mca:/data
+    ports:
+      - "9021:21"
+      - "21000-21010:21000-21010"
+    labels:
+      - "traefik.enable=false"
+    environment:
+      - "USERS=mediacloudai|mEd1aCl0uda1|/data"
+    networks:
+      - mediacloudai_global
+      - storage-mca
+
 networks:
   storage-mca:
     driver: bridge
