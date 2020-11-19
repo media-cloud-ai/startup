@@ -124,3 +124,14 @@ Commands below will be used for only for the workers stack:
 | `make storage-up` | start containers |
 | `make storage-ps` | show all containers and there status |
 | `make storage-stop` | stop containers |
+
+
+## Credentials
+
+### Storage
+
+In order to allow the workers to access the storage endpoints, here are the default credential values that should be set into the backend interface:
+
+ * `S3_SECRET`: `{"type":"s3","hostname":"http://127.0.0.1:9001","access_key_id":"mediacloudai","secret_access_key":"mediacloudai","bucket":"bucket","region":"us-east-1"}`
+ * `HTTP_SECRET`: `{"type":"http","endpoint":"http://127.0.0.1:8082"}`
+ * `FTP_SECRET`: `{"type":"ftp","hostname":"localhost","port":9021,"secure":false,"username":"mediacloudai","password":"mEd1aCl0uda1","prefix":"/data"}`
