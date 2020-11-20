@@ -14,9 +14,9 @@ services:
       - server
       - /data
     environment:
-      MINIO_SECRET_KEY: "mediacloudai"
-      MINIO_ACCESS_KEY: "mediacloudai"
-      MINIO_CERT_PASSWD: "mediacloudai"
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_CERT_PASSWD: ${MINIO_CERT_PASSWD}
     networks:
       - mediacloudai_global
       - storage-mca
@@ -57,7 +57,7 @@ services:
     labels:
       - "traefik.enable=false"
     environment:
-      - "USERS=mediacloudai|mEd1aCl0uda1|/data"
+      - "USERS=${FTP_ACCESS_USER}|${FTP_ACCESS_PASSWORD}|/data"
     networks:
       - mediacloudai_global
       - storage-mca
