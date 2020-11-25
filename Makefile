@@ -2,6 +2,7 @@ PROJECT_NAME=mediacloudai
 
 include .env.docker
 include .env
+include .env.storage
 include .env.backend
 include .env.workers
 
