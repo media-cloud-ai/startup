@@ -132,6 +132,6 @@ Commands below will be used for only for the workers stack:
 
 In order to allow the workers to access the storage endpoints, here are the default credential values that should be set into the backend interface (see the `.env.storage` file content to get the `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `FTP_ACCESS_USER` and `FTP_ACCESS_PASSWORD` values to set):
 
- * `S3_SECRET`: `{"type":"s3","hostname":"http://minio:9000","access_key_id":"MINIO_ACCESS_KEY","secret_access_key":"MINIO_SECRET_KEY","bucket":"bucket","region":"us-east-1"}`
+ * `S3_SECRET`: `{"type":"s3","hostname":"http://minio:9000","access_key_id":"mediacloudai","secret_access_key":"mediacloudai","bucket":"bucket","region":"us-east-1"}`
  * `HTTP_SECRET`: `{"type":"http","endpoint":"http://http_nginx"}`
- * `FTP_SECRET`: `{"type":"ftp","hostname":"ftp_vsftpd","port":21,"secure":false,"username":"FTP_ACCESS_USER","password":"FTP_ACCESS_PASSWORD","prefix":"/data"}`
+ * `FTP_SECRET`: `{"type":"ftp","hostname":"ftp_vsftpd","port":21,"secure":false,"username":"mediacloudai","password":"mEd1aCl0uda1","prefix":"/data"}`
