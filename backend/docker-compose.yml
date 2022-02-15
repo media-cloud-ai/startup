@@ -6,13 +6,13 @@ services:
   workflows:
     image: ${WORKFLOWS_IMAGE}:${WORKFLOWS_VERSION}
     volumes:
-      - workflows:/workflows-volume
+      - ../workflows:/workflows-volume
     command: "cp -R /workflows/. /workflows-volume"
 
   backend:
     image: ${BACKEND_IMAGE}:${BACKEND_VERSION}
     volumes:
-      - workflows:/workflows
+      - ../workflows:/workflows
     ports:
       - ${BACKEND_PORT}:80
     environment:
