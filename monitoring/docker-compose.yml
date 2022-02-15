@@ -7,6 +7,8 @@ services:
     image: ${ELASTICSEARCH_IMAGE}:${ELASTICSEARCH_VERSION}
     environment:
       - "discovery.type=single-node"
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - 9200:9200
     networks:

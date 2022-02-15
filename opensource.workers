@@ -13,7 +13,7 @@
 	},
 	{
 		"name": "ffmpeg",
-		"image": "mediacloudai/rs_ffmpeg_worker:0.0.5",
+		"image": "mediacloudai/rs_ffmpeg_worker:0.0.6",
 		"count": 1,
 		"vault": false
 	},
@@ -43,7 +43,7 @@
 	},
 	{
 		"name": "transfer",
-		"image": "mediacloudai/rs_transfer_worker:0.3.2",
+		"image": "mediacloudai/rs_transfer_worker:0.4.2",
 		"vault": true,
 		"count": 1
 	}

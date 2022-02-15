@@ -21,6 +21,7 @@ services:
       APP_COMPANY_LOGO: "${APP_COMPANY_LOGO}"
       APP_COMPANY: "${APP_COMPANY}"
       APP_IDENTIFIER: "${APP_IDENTIFIER}"
+      TZ: "${APP_TZ}"
 
       PORT: 80
       SSL: "${BACKEND_SSL}"
@@ -60,6 +61,8 @@ services:
       S3_SECRET_KEY: "${S3_SECRET_KEY}"
       S3_REGION: "${S3_REGION}"
       S3_BUCKET: "${S3_BUCKET}"
+
+      TEAMS_CHANNEL_URL: "${TEAMS_CHANNEL_URL}"
 
     networks:
       - mediacloudai_global
