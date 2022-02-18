@@ -170,7 +170,7 @@ fi
 
 if [ $EFK_FLAG = true ]; then
   COMPOSITION+="    fluentd:\n"
-  COMPOSITION+="      build: ../fluentd\n"
+  COMPOSITION+="      image: ${FLUENTD_IMAGE}:${FLUENTD_VERSION}\n"
   COMPOSITION+="      volumes:\n"
   COMPOSITION+="        - ../fluentd/conf:/fluentd/etc\n"
   COMPOSITION+="      ports:\n"

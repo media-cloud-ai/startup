@@ -5,7 +5,6 @@ include .env
 include .env.storage
 include .env.backend
 include .env.workers
-include .env.vault
 
 export	# This will make all variables defined in envfile to becomes environment variables.
 
@@ -26,46 +25,44 @@ docker-compose-vault = docker-compose -f vault/docker-compose.yml -p $(PROJECT_N
 %-clean:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} CLEANING")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) down -v --remove-orphans --rmi local; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	$(docker-compose-$*) down -v --remove-orphans --rmi local
+else
+	echo "Unknown '$*'"
+endif
 	@echo
 
 %-ps:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} SHOWING CONTAINERS")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) ps; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	$(docker-compose-$*) ps
+else
+	echo "Unknown '$*'"
+endif
 	@echo
 
 %-stop:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STOPPING")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) stop; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	@$(docker-compose-$*) stop
+else
+	echo "Unknown '$*'"
+endif
 	@echo
 
 %-up:
-	@$(eval output := $(shell make -n $*-generate-cfg 2>&1 | head -1))
-	@$(eval check_output := $(shell echo ${output} | egrep "${target_regex}" -))
-	@if [ "${check_output}" = "" ]; then \
-	    make -s $*-generate-cfg; \
-	fi
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
+	@if [ "$*" = "workers" ] || [ "$*" = "vault" ]; then \
+		make -s $*-generate-cfg; \
+  fi
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) up -d --remove-orphans; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	@$(docker-compose-$*) up -d --remove-orphans
+else
+	@echo "Unknown '$*'"
+endif
 	@echo
 
 clean: backend-clean workers-clean backbone-clean storage-clean
@@ -110,11 +107,11 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 
 workers-generate-cfg:
 	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
-	@if [ $(EFK) = false ]; then \
-		./scripts/generate_workers_cfg.sh $(BACKEND_TYPE); \
-	else \
-		./scripts/generate_workers_cfg.sh $(BACKEND_TYPE) -EFK; \
-	fi
+ifeq ($(EFK), false)
+	./scripts/generate_workers_cfg.sh $(BACKEND_TYPE)
+else
+	./scripts/generate_workers_cfg.sh $(BACKEND_TYPE) -EFK
+endif
 
 ###############
 ###  VAULT  ###
@@ -125,11 +122,6 @@ vault-generate-cfg:
 	@if [ ! -d "vault/vault/data" ]; then mkdir vault/vault/data; fi
 	@if [ ! -d "vault/vault/logs" ]; then mkdir vault/vault/logs; fi
 	@if [ ! -d "vault/vault/policies" ]; then mkdir vault/vault/policies; fi
-	@echo "CREATE USER ${POSTGRES_USER} WITH PASSWORD '${POSTGRES_PASSWORD}'; ALTER USER ${POSTGRES_USER} WITH SUPERUSER; CREATE DATABASE ${POSTGRES_USER}" > vault/sql/create_user.sql
-	@docker cp vault/sql/create_user.sql ${POSTGRES_CONTAINER}:/
-	@docker cp vault/sql/init_tables_postgres.sql ${POSTGRES_CONTAINER}:/
-	@rm vault/sql/create_*.sql
-	@docker exec -ti ${POSTGRES_CONTAINER} bash -c "psql -U postgres -f create_user.sql && psql -U vault -f init_tables_postgres.sql"
 
 
 ###############
@@ -138,10 +130,10 @@ vault-generate-cfg:
 
 check-openssl:
 	@$(eval openssl-bin := $(shell which openssl 2>/dev/null))
-	@if [ "${openssl-bin}" = "" ]; then \
-		echo "openssl not found"; \
-		exit -1; \
-	fi
+ifeq ($(openssl-bin), "")
+	echo "openssl not found"
+	exit -1
+endif
 	@echo "openssl found in ${openssl-bin}"
 	@echo
 
