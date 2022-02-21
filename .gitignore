@@ -7,6 +7,8 @@
 
 private.workers
 
+rabbitmq.conf
+
 data/
 storage-mca/
 certs/

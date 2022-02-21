@@ -13,10 +13,8 @@ services:
       - 15678:15672
     labels:
       - "traefik.enable=false"
-    environment:
-      RABBITMQ_DEFAULT_USER: ${AMQP_USERNAME}
-      RABBITMQ_DEFAULT_PASS: ${AMQP_PASSWORD}
-      RABBITMQ_DEFAULT_VHOST: ${AMQP_VIRTUAL_HOST}
+    volumes:
+      - ./config:/etc/rabbitmq
 
 networks:
   backbone:
