@@ -16,6 +16,7 @@ docker-compose-backbone = docker-compose -f backbone/docker-compose.yml $(EFK-CO
 docker-compose-backend = docker-compose -f backend/docker-compose.yml -p $(PROJECT_NAME)_backend
 docker-compose-workers = docker-compose -f workers/docker-compose.yml -p $(PROJECT_NAME)_workers
 docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJECT_NAME)_storage
+docker-compose-vault = docker-compose -f vault/docker-compose.yml -p $(PROJECT_NAME)_vault
 
 ##############
 ### COMMON ###
@@ -24,45 +25,44 @@ docker-compose-storage = docker-compose -f storage/docker-compose.yml -p $(PROJE
 %-clean:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} CLEANING")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) down -v --remove-orphans --rmi local; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	$(docker-compose-$*) down -v --remove-orphans --rmi local
+else
+	echo "Unknown '$*'"
+endif
 	@echo
 
 %-ps:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} SHOWING CONTAINERS")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) ps; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	$(docker-compose-$*) ps
+else
+	echo "Unknown '$*'"
+endif
 	@echo
 
 %-stop:
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STOPPING")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) stop; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	@$(docker-compose-$*) stop
+else
+	echo "Unknown '$*'"
+endif
 	@echo
 
 %-up:
-	@$(eval check_output := `make -n $*-generate-cfg 2>&1 | head -1 | egrep \^make`)
-	@if [ "${check_output}" == "" ]; then \
-		make -s $*-generate-cfg; \
-	fi
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
+	@if [ "$*" = "workers" ] || [ "$*" = "vault" ]; then \
+		make -s $*-generate-cfg; \
+  fi
 	@$(call displayheader,$(CYAN_COLOR),"${ns} STARTING")
-	@if [ "$(docker-compose-$*)" != "" ]; then \
-		$(docker-compose-$*) up -d --remove-orphans; \
-	else \
-		echo "Unknown '$*'"; \
-	fi
+ifneq ($(docker-compose-$*), "")
+	@$(docker-compose-$*) up -d --remove-orphans
+else
+	@echo "Unknown '$*'"
+endif
 	@echo
 
 clean: backend-clean workers-clean backbone-clean storage-clean
@@ -84,11 +84,11 @@ ip:
 		echo " "; \
 	done
 
-ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps
+ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps vault-ps
 
-up: init backbone-up backend-up workers-up generate-certs storage-up ip
+up: init backbone-up backend-up workers-up generate-certs storage-up vault-up ip
 
-stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop
+stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop vault-stop
 
 ################
 ### BACKBONE ###
@@ -107,11 +107,22 @@ backend-pg_dump: ## [container=] ## (Re-)Create and start containers
 
 workers-generate-cfg:
 	@$(call displayheader, $(CYAN_COLOR), "Generate docker-compose.yml for workers")
-	@if [ $(EFK) = false ]; then \
-		./scripts/generate_workers_cfg.sh $(BACKEND_TYPE); \
-	else \
-		./scripts/generate_workers_cfg.sh $(BACKEND_TYPE) -EFK; \
-	fi
+ifeq ($(EFK), false)
+	./scripts/generate_workers_cfg.sh $(BACKEND_TYPE)
+else
+	./scripts/generate_workers_cfg.sh $(BACKEND_TYPE) -EFK
+endif
+
+###############
+###  VAULT  ###
+###############
+
+vault-generate-cfg:
+	@$(call displayheader,$(CYAN_COLOR),"${ns} SETUP VAULT")
+	@if [ ! -d "vault/vault/data" ]; then mkdir vault/vault/data; fi
+	@if [ ! -d "vault/vault/logs" ]; then mkdir vault/vault/logs; fi
+	@if [ ! -d "vault/vault/policies" ]; then mkdir vault/vault/policies; fi
+
 
 ###############
 ### STORAGE ###
@@ -119,10 +130,10 @@ workers-generate-cfg:
 
 check-openssl:
 	@$(eval openssl-bin := $(shell which openssl 2>/dev/null))
-	@if [ "${openssl-bin}" = "" ]; then \
-		echo "openssl not found"; \
-		exit -1; \
-	fi
+ifeq ($(openssl-bin), "")
+	echo "openssl not found"
+	exit -1
+endif
 	@echo "openssl found in ${openssl-bin}"
 	@echo
 

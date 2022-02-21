@@ -30,17 +30,16 @@ make clean
 
 By default, all workers are started. But there's a way to start only wanted workers.
 In `.env.workers` file there's an environment variable which list all workers to start: `WORKERS_TO_START`.
-In the variable, you can list all workers that you want to start and you must generate the new worker `docker-compose.yml` using:
-
-```bash
-make workers-generate-cfg
-```
 
 **WARNING: If all workers are already started, you must stop them before regenerate the docker-compose file using `make workers-stop`.**
 
 ### EFK stack for monitoring
 
 In order to perform an applicative monitoring (viz. save and access the logs of the docker containers), an EFK (Elasticsearch-Fluentd-Kibana) stack is used. A complete description on it is placed in [monitoring](monitoring/README.md) folder.
+
+### Vault for keeping your secrets safe
+
+In order to centralise your secrets, a Vault instance is used. A complete description of Vault and its usage is placed in [vault](vault/README.md) folder.
 
 ### Enabling/Disabling of features
 
@@ -58,6 +57,7 @@ Now, you must update your `/etc/hosts` file by adding the following domains with
 * local.minio.media-cloud.ai
 * local.rabbitmq.media-cloud.ai
 * local.kibana.media-cloud.ai
+* local.vault.media-cloud.ai
 
 ### URLs
 
@@ -68,6 +68,7 @@ Now, you must update your `/etc/hosts` file by adding the following domains with
 | Storage   | Minio     | [https://local.minio.media-cloud.ai:9000](https://local.minio.media-cloud.ai:9000) |
 | Storage   | Nginx VOD | [http://local.nginx-vod-module.media-cloud.ai](http://local.nginx-vod-module.media-cloud.ai) |
 | EFK       | Kibana    | [http://local.kibana.media-cloud.ai:5601](http://local.kibana.media-cloud.ai:5601) |
+| Vault     | Vault     | [http://local.vault.media-cloud.ai:8200](http://local.vault.media-cloud.ai:8200) |
 
 ### Common commands
 
@@ -116,7 +117,7 @@ Commands below will be used for only for the workers stack:
 
 ### Storage commands
 
-Commands below will be used for only for the workers stack:
+Commands below will be used for only for the storage stack:
 
 | Command | Description |
 |---------------|----------------|
@@ -135,3 +136,14 @@ In order to allow the workers to access the storage endpoints, here are the defa
  * `S3_SECRET`: `{"type":"s3","hostname":"http://minio:9000","access_key_id":"mediacloudai","secret_access_key":"mediacloudai","bucket":"bucket","region":"us-east-1"}`
  * `HTTP_SECRET`: `{"type":"http","endpoint":"http://http_nginx"}`
  * `FTP_SECRET`: `{"type":"ftp","hostname":"ftp_vsftpd","port":21,"secure":false,"username":"mediacloudai","password":"mEd1aCl0uda1","prefix":"/data"}`
+
+### Vault commands
+
+Commands below will be used for only for the vault stack:
+
+| Command | Description |
+|---------------|----------------|
+| `make vault-clean` | stop & remove all containers |
+| `make vault-up` | start containers |
+| `make vault-ps` | show all containers and there status |
+| `make vault-stop` | stop containers |
