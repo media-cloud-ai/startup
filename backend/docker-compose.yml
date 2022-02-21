@@ -6,13 +6,13 @@ services:
   workflows:
     image: ${WORKFLOWS_IMAGE}:${WORKFLOWS_VERSION}
     volumes:
-      - workflows:/workflows-volume
+      - ../workflows:/workflows-volume
     command: "cp -R /workflows/. /workflows-volume"
 
   backend:
     image: ${BACKEND_IMAGE}:${BACKEND_VERSION}
     volumes:
-      - workflows:/workflows
+      - ../workflows:/workflows
     ports:
       - ${BACKEND_PORT}:80
     environment:
@@ -21,6 +21,7 @@ services:
       APP_COMPANY_LOGO: "${APP_COMPANY_LOGO}"
       APP_COMPANY: "${APP_COMPANY}"
       APP_IDENTIFIER: "${APP_IDENTIFIER}"
+      TZ: "${APP_TZ}"
 
       PORT: 80
       SSL: "${BACKEND_SSL}"
@@ -60,6 +61,8 @@ services:
       S3_SECRET_KEY: "${S3_SECRET_KEY}"
       S3_REGION: "${S3_REGION}"
       S3_BUCKET: "${S3_BUCKET}"
+
+      TEAMS_CHANNEL_URL: "${TEAMS_CHANNEL_URL}"
 
     networks:
       - mediacloudai_global
