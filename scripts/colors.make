@@ -21,6 +21,12 @@ define cecho
     @tput sgr0
 endef
 
+define becho
+    tput setaf $(1) ; \
+    echo $2 ; \
+    tput sgr0
+endef
+
 define displayheader
 	@$(call cecho,$(1),"**********************************************************************")
 	@$(call cecho,$(1),"***")

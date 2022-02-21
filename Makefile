@@ -52,7 +52,16 @@ else
 endif
 	@echo
 
-%-up:
+%-status:
+	@if [ "$(docker ps -q -f name=$*)" != ""]; then \
+		echo "Known '$*'"; \
+	else \
+		echo "Unknown '$*'"; \
+	fi
+	@echo
+
+
+%-up: init
 	$(eval ns := $(shell echo $(*) | tr  '[:lower:]' '[:upper:]'))
 	@if [ "$*" = "workers" ] || [ "$*" = "vault" ]; then \
 		make -s $*-generate-cfg; \
@@ -89,6 +98,24 @@ ps: backbone-ps backend-ps workers-ps backbone-ps storage-ps vault-ps
 up: init backbone-up backend-up workers-up generate-certs storage-up vault-up ip
 
 stop: backbone-stop backend-stop workers-stop backbone-stop storage-stop vault-stop
+
+status:
+	@$(call displayheader,$(CYAN_COLOR),"CHECKING SERVICES STATUS")
+	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}) ; do \
+		docker cp ./scripts/test_container.sh $$CONTAINER:/ ; \
+		docker exec $$CONTAINER chmod +x /test_container.sh; \
+		docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
+			$(call becho,$(CYAN_COLOR), "$$CONTAINER to $$SERVICE ... ") ; \
+			status="$$(docker exec $$CONTAINER /test_container.sh $${SERVICE} && echo 0 || echo 1)"; \
+			if [ $$status = "0" ]; then \
+				$(call becho,$(GREEN_COLOR), "Pass"); \
+			else \
+				$(call becho,$(RED_COLOR), "Fail"); \
+			fi; \
+		done; \
+		docker exec $$CONTAINER [ -e /test_container.sh ] && rm -f /test_container.sh; \
+	done
+
 
 ################
 ### BACKBONE ###
