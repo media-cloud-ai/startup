@@ -4,11 +4,7 @@ version: "3.6"
 
 services:
   rabbitmq:
-    build:
-      context: .
-      args:
-        - RABBITMQ_IMAGE=${RABBITMQ_IMAGE}
-        - RABBITMQ_VERSION=${RABBITMQ_VERSION}
+    image: ${RABBITMQ_IMAGE}:${RABBITMQ_VERSION}
     networks:
       - backbone
       - mediacloudai_global
@@ -54,7 +50,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config:/etc/prometheus
 
 networks:
   backbone:
