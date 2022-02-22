@@ -60,6 +60,9 @@ for WORKER_FILE in opensource.workers.yml private.workers.yml; do
       NAME=$(id=$WORKER yq '.workers[env(id)].name' opensource.workers.yml)
       REPLICAS=$(id=$WORKER yq '.workers[env(id)].count' opensource.workers.yml)
       IMAGE=$(id=$WORKER yq '.workers[env(id)].image' opensource.workers.yml)
+      if [ "$IMAGE" = "null" ]; then
+        BUILD=$(id=$WORKER yq '.workers[env(id)].build' opensource.workers.yml)
+      fi
       VAULT=$(id=$WORKER yq '.workers[env(id)].vault' opensource.workers.yml)
       CUSTOM_ENV=$(id=$WORKER yq -o=j '.workers[env(id)].environment' opensource.workers.yml)
       GPU=$(id=$WORKER yq '.workers[env(id)].gpu' opensource.workers.yml)
@@ -70,7 +73,11 @@ for WORKER_FILE in opensource.workers.yml private.workers.yml; do
       for REP_WORKER in $(seq 1 1 $REPLICAS); do
         REP_NAME=$NAME\_$REP_WORKER
         JOB="job_"$NAME
-        TEMP=$(echo $TEMPLATE | worker_template=$(yq '.worker' workers/worker.yml) image=$IMAGE rep_name=$REP_NAME job=$JOB yq -o=j '.services[env(rep_name)].image = env(image) | .services[env(rep_name)] += env(worker_template) | .services[env(rep_name)].environment["AMQP_QUEUE"] = env(job)')
+        if [ "$IMAGE" != "null" ]; then
+          TEMP=$(echo $TEMPLATE | worker_template=$(yq '.worker' workers/worker.yml) image=$IMAGE rep_name=$REP_NAME job=$JOB yq -o=j '.services[env(rep_name)].image = env(image) | .services[env(rep_name)] += env(worker_template) | .services[env(rep_name)].environment["AMQP_QUEUE"] = env(job)')
+        else
+          TEMP=$(echo $TEMPLATE | worker_template=$(yq '.worker' workers/worker.yml) build=$BUILD rep_name=$REP_NAME job=$JOB yq -o=j '.services[env(rep_name)].build = env(build) | .services[env(rep_name)] += env(worker_template) | .services[env(rep_name)].environment["AMQP_QUEUE"] = env(job)')
+        fi
         TEMPLATE=$TEMP
 
         # Custom envvar case
