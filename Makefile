@@ -103,7 +103,6 @@ status:
 	@$(call displayheader,$(CYAN_COLOR),"CHECKING SERVICES STATUS")
 	@for CONTAINER in $(shell docker ps --format '{{.Names}}' -f NAME=${PROJECT_NAME}) ; do \
 		docker cp ./scripts/test_container.sh $$CONTAINER:/ ; \
-		docker exec $$CONTAINER chmod +x /test_container.sh; \
 		docker exec $$CONTAINER env | grep -oP 'AMQP|DATABASE' | uniq | while read -r SERVICE; do \
 			$(call becho,$(CYAN_COLOR), "$$CONTAINER to $$SERVICE ... ") ; \
 			status="$$(docker exec $$CONTAINER /test_container.sh $${SERVICE} && echo 0 || echo 1)"; \

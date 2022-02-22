@@ -2,11 +2,30 @@
 
 ## Requirements
 
-To start the platform locally you've to install [docker](https://www.docker.com) & [docker-compose](https://docs.docker.com/compose/).
+To install the MediaCloudAI stack, you will need to first install several third party components.
+The versions indicated in the documentation are the version tested to be compatible. Older versions might be compatible but have not been tested.
+
 If you want to use storage services, you will need to install `openssl` too.
+
+### Docker
+
+- [Docker](https://www.docker.com) 20.10+
+
+### Docker Compose
+
+- [Docker Compose](https://docs.docker.com/compose/) 1.24+
+
+### yq
+
+- [yq](https://github.com/mikefarah/yq) 4.20+
 
 
 ## Quick start
+
+First launch the setup script:
+```bash
+./setup.sh
+```
 
 To quickly start locally the plateform this is very easy:
 ```bash
@@ -36,6 +55,7 @@ In `.env.workers` file there's an environment variable which list all workers to
 ### EFK stack for monitoring
 
 In order to perform an applicative monitoring (viz. save and access the logs of the docker containers), an EFK (Elasticsearch-Fluentd-Kibana) stack is used. A complete description on it is placed in [monitoring](monitoring/README.md) folder.
+A [Grafana](https://grafana.com/products/) instance is also instanciated as well as a [Prometheus](https://prometheus.io) server.
 
 ### Vault for keeping your secrets safe
 
@@ -43,9 +63,9 @@ In order to centralise your secrets, a Vault instance is used. A complete descri
 
 ### Enabling/Disabling of features
 
-It is possible to enable or disable features via the `.env` file :
-  - The EFK stack for monitoring is bind to the `EFK=true|false` environment variable.
-  - Environment setup for launching the Backend from startup or from the [ex_backend](https://github.com/media-cloud-ai/ex_backend) repo is bind to the `BACKEND_TYPE=startup|dev` environment variable.
+It is possible to enable or disable features via the `.env.*` files :
+  - The EFK stack for monitoring is bound to the `EFK=true|false` environment variable in `.env`.
+  - The logging level of the workers is bound to the `LOG_LEVEL=info|warn|error|debug` environment variable in `.env.workers`.
 
 ## Domains
 
@@ -57,6 +77,8 @@ Now, you must update your `/etc/hosts` file by adding the following domains with
 * local.minio.media-cloud.ai
 * local.rabbitmq.media-cloud.ai
 * local.kibana.media-cloud.ai
+* local.grafana.media-cloud.ai
+* local.prometheus.media-cloud.ai
 * local.vault.media-cloud.ai
 
 ### URLs
@@ -68,6 +90,8 @@ Now, you must update your `/etc/hosts` file by adding the following domains with
 | Storage   | Minio     | [https://local.minio.media-cloud.ai:9000](https://local.minio.media-cloud.ai:9000) |
 | Storage   | Nginx VOD | [http://local.nginx-vod-module.media-cloud.ai](http://local.nginx-vod-module.media-cloud.ai) |
 | EFK       | Kibana    | [http://local.kibana.media-cloud.ai:5601](http://local.kibana.media-cloud.ai:5601) |
+| Grafana   | Grafana   | [http://local.grafana.media-cloud.ai:3000](http://local.grafana.media-cloud.ai:3000) |
+| Prometheus| Prometheus| [http://local.prometheus.media-cloud.ai:9090](http://local.prometheus.media-cloud.ai:9090) |
 | Vault     | Vault     | [http://local.vault.media-cloud.ai:8200](http://local.vault.media-cloud.ai:8200) |
 
 ### Common commands
@@ -101,7 +125,7 @@ Commands below will be used for only for the backend stack:
 |---------------|----------------|
 | `make backend-clean` | stop & remove all containers |
 | `make backend-up` | start containers |
-| `make backend-ps` | show all containers and there status |
+| `make backend-ps` | show all containers and their status |
 | `make backend-stop` | stop containers |
 
 ### Workers commands
@@ -112,7 +136,7 @@ Commands below will be used for only for the workers stack:
 |---------------|----------------|
 | `make workers-clean` | stop & remove all containers |
 | `make workers-up` | start containers |
-| `make workers-ps` | show all containers and there status |
+| `make workers-ps` | show all containers and their status |
 | `make workers-stop` | stop containers |
 
 ### Storage commands
@@ -123,9 +147,8 @@ Commands below will be used for only for the storage stack:
 |---------------|----------------|
 | `make storage-clean` | stop & remove all containers |
 | `make storage-up` | start containers |
-| `make storage-ps` | show all containers and there status |
+| `make storage-ps` | show all containers and their status |
 | `make storage-stop` | stop containers |
-
 
 ## Credentials
 
@@ -145,5 +168,29 @@ Commands below will be used for only for the vault stack:
 |---------------|----------------|
 | `make vault-clean` | stop & remove all containers |
 | `make vault-up` | start containers |
-| `make vault-ps` | show all containers and there status |
+| `make vault-ps` | show all containers and their status |
 | `make vault-stop` | stop containers |
+
+## Troubleshooting
+
+### IP address conflict
+
+In case of IP address conflict, you need to add ipam configuration to three `docker-compose`:
+- In `backbone/docker-compose.yml` in `networks.backbone`:
+```yaml
+ipam:
+  config:
+  - subnet: 192.168.202.0/24
+```
+- In `backend/docker-compose.yml.tpl` in `networks.backend`:
+```yaml
+ipam:
+  config:
+  - subnet: 192.168.201.0/24
+```
+- In `workers/docker-compose.yml.tpl` in `networks.workers`:
+```yaml
+ipam:
+  config:
+  - subnet: 192.168.203.0/24
+```
