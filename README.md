@@ -45,6 +45,18 @@ If you want to stop the plateform and remove containers:
 make clean
 ```
 
+## Adding new workers
+
+The workers can be specified in two files : `opensource.workers.yml` and `private.workers.yml`.
+The structure is depicted as an example in `opensource.workers.yml`.
+The available keywords are (`*` if mandatory):
+- `name*` for the worker name. The job queue in RabbitMQ will be constructed after this name, namely by `job_${NAME}`.
+- `image*` for the image name or `build*` for a path containing a Dockerfile.
+- `count*` for the number of workers to be created.
+- `environment` to specify custom environment variables.
+- `vault` to specify whether the worker needs to retrieve secrets for secret backend (Backend or Vault).
+- `gpu` to specify whether the container needs to change runtime to `nvidia`. 
+
 ### Start Workers On-Demand
 
 By default, all workers are started. But there's a way to start only wanted workers.
