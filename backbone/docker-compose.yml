@@ -34,6 +34,24 @@ services:
       RABBITMQ_DEFAULT_PASS: ${AMQP_PASSWORD}
       RABBITMQ_DEFAULT_VHOST: ${AMQP_VIRTUAL_HOST}
 
+  prometheus:
+    image: prom/prometheus:v2.15.2
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=90d'
+      - '--storage.tsdb.retention.size=40GB'
+      - '--web.enable-lifecycle'
+    networks:
+      - backbone
+      - mediacloudai_global
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config:/etc/prometheus
+
 networks:
   backbone:
     driver: bridge
