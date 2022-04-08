@@ -57,15 +57,15 @@ for WORKER_FILE in opensource.workers.yml private.workers.yml; do
 
     for WORKER in $(seq 0 1 $SIZE); do
 
-      NAME=$(id=$WORKER yq '.workers[env(id)].name' opensource.workers.yml)
-      REPLICAS=$(id=$WORKER yq '.workers[env(id)].count' opensource.workers.yml)
-      IMAGE=$(id=$WORKER yq '.workers[env(id)].image' opensource.workers.yml)
+      NAME=$(id=$WORKER yq '.workers[env(id)].name' $WORKER_FILE)
+      REPLICAS=$(id=$WORKER yq '.workers[env(id)].count' $WORKER_FILE)
+      IMAGE=$(id=$WORKER yq '.workers[env(id)].image' $WORKER_FILE)
       if [ "$IMAGE" = "null" ]; then
-        BUILD=$(id=$WORKER yq '.workers[env(id)].build' opensource.workers.yml)
+        BUILD=$(id=$WORKER yq '.workers[env(id)].build' $WORKER_FILE)
       fi
-      VAULT=$(id=$WORKER yq '.workers[env(id)].vault' opensource.workers.yml)
-      CUSTOM_ENV=$(id=$WORKER yq -o=j '.workers[env(id)].environment' opensource.workers.yml)
-      GPU=$(id=$WORKER yq '.workers[env(id)].gpu' opensource.workers.yml)
+      VAULT=$(id=$WORKER yq '.workers[env(id)].vault' $WORKER_FILE)
+      CUSTOM_ENV=$(id=$WORKER yq -o=j '.workers[env(id)].environment' $WORKER_FILE)
+      GPU=$(id=$WORKER yq '.workers[env(id)].gpu' $WORKER_FILE)
 
       displayworker $NAME $REPLICAS
 
