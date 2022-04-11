@@ -1,11 +1,21 @@
 .env
 .env.backend
 .env.workers
+.env.vault
 *.sql
+!init_tables_postgres.sql
 
 private.workers
+
+rabbitmq.conf
 
 data/
 storage-mca/
 certs/
 workflows/
+
+backend/docker-compose.yml
+workers/docker-compose.yml
+
+monitoring/docker-data-volumes/elasticsearch
+monitoring/docker-data-volumes/grafana

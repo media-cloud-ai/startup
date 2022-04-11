@@ -11,12 +11,46 @@ services:
     ports:
       - 5678:5672
       - 15678:15672
+      - 5677:5671
+      - 15677:15671
     labels:
       - "traefik.enable=false"
+    volumes:
+      - ./config:/etc/rabbitmq
     environment:
+      RABBITMQ_SSL_CACERTFILE:
+      RABBITMQ_SSL_CERTFILE:
+      RABBITMQ_SSL_DEPTH:
+      RABBITMQ_SSL_FAIL_IF_NO_PEER_CERT:
+      RABBITMQ_SSL_KEYFILE:
+      RABBITMQ_SSL_VERIFY:
+      RABBITMQ_MANAGEMENT_SSL_CACERTFILE:
+      RABBITMQ_MANAGEMENT_SSL_CERTFILE:
+      RABBITMQ_MANAGEMENT_SSL_DEPTH:
+      RABBITMQ_MANAGEMENT_SSL_FAIL_IF_NO_PEER_CERT:
+      RABBITMQ_MANAGEMENT_SSL_KEYFILE:
+      RABBITMQ_MANAGEMENT_SSL_VERIFY:
       RABBITMQ_DEFAULT_USER: ${AMQP_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${AMQP_PASSWORD}
       RABBITMQ_DEFAULT_VHOST: ${AMQP_VIRTUAL_HOST}
+
+  prometheus:
+    image: prom/prometheus:v2.15.2
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=90d'
+      - '--storage.tsdb.retention.size=40GB'
+      - '--web.enable-lifecycle'
+    networks:
+      - backbone
+      - mediacloudai_global
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config:/etc/prometheus
 
 networks:
   backbone:

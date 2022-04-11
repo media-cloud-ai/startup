@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+
+  vault:
+    image: ${VAULT_IMAGE}:${VAULT_VERSION}
+    ports:
+      - 8200:8200
+    volumes:
+      - ./vault/config:/vault/config
+      - ./vault/policies:/vault/policies
+      - ./vault/data:/vault/data
+      - ./vault/logs:/vault/logs
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8200
+      - VAULT_API_ADDR=http://127.0.0.1:8200
+    command: server -config=/vault/config/vault-config.hcl
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - mediacloudai_global
+
+networks:
+  mediacloudai_global:
+    external: true

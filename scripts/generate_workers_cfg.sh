@@ -3,13 +3,13 @@
 TARGET_FILE=workers/docker-compose.yml
 EFK_FLAG=false
 
-if ! [ -x "$(command -v jq)" ]; then
-  echo 'Error: jq is not installed.' >&2
+if ! [ -x "$(command -v yq)" ]; then
+  echo 'Error: yq is not installed.' >&2
   exit 1
 fi
 
-if [ $# -ge 2 ]; then
-  if [ "$2" = "-EFK" ]; then
+if [ $# -ge 4 ]; then
+  if [ "$4" = "-EFK" ]; then
     EFK_FLAG=true
   fi
 fi
@@ -18,173 +18,100 @@ displayworker() {
     echo "--> ${1} (${2})"
 }
 
+set -e
 
-COMPOSITION="--- \n"
-# keep this version for GPU support of runtime flag, upper version are bugged
-COMPOSITION+="version: \"2.4\"\n\n"
-COMPOSITION+="services:\n"
+echo "---" > $TARGET_FILE
 
-add_section() {
-    COMPOSITION+="        "$1":\n";
-}
+SHARED_WORK_DIRECTORIES=$2
+LOG_LEVEL=$3
 
-depth() {
-    for i in $(seq "$1"); do
-      COMPOSITION+="  ";
-    done
-}
+#####
+# PREPARATION
+#####
 
-add_section_with_value() {
-    COMPOSITION+="        "$1": "$2"\n";
-}
+# Preparing common elements
+TEMPLATE=$(yq -o=j workers/worker.yml.tpl)
 
-add_env_var() {
-    COMPOSITION+="            "$1": \"\${"$1"}\"\n"
-}
+# Shared directories
+IFS=';' read -ra DIRS <<< "$SHARED_WORK_DIRECTORIES"
+for DIR in "${DIRS[@]}"; do
+  TEMP=$(echo $TEMPLATE | shared=$DIR yq -o=j '.worker.volumes += [env(shared)]')
+  TEMPLATE=$TEMP
+done
 
-add_string_env_var() {
-    COMPOSITION+="            "$1": \""$2"\"\n"
-}
+# Logging level
+echo $TEMPLATE | log_level=$LOG_LEVEL yq -P '.worker.environment["RUST_LOG"] = env(log_level)' > workers/worker.yml
 
-add_custom_env_var() {
-    COMPOSITION+="            "$1": "$2"\n"
-}
 
-add_extra_env_var() {
-    COMPOSITION+="            $1\n"
-}
+#####
+# TEMPLATING
+#####
 
-add_item() {
-    COMPOSITION+="            - "$1"\n";
-}
+TEMPLATE=$(yq -o=j workers/docker-compose.yml.tpl)
 
-generate_workers () {
-    for row in $(jq -r '.[] | @base64' $1); do
-        _jq() {
-            echo ${row} | base64 --decode | jq -r ${1}
-        }
-        count=1
-        if [ $(_jq '.count!=null') = "true" ]; then
-            count=$(_jq '.count')
+for WORKER_FILE in opensource.workers.yml private.workers.yml; do
+
+  if test -f $WORKER_FILE; then
+
+    SIZE=$(($(yq '.workers | length' $WORKER_FILE)-1))
+
+    for WORKER in $(seq 0 1 $SIZE); do
+
+      NAME=$(id=$WORKER yq '.workers[env(id)].name' $WORKER_FILE)
+      REPLICAS=$(id=$WORKER yq '.workers[env(id)].count' $WORKER_FILE)
+      IMAGE=$(id=$WORKER yq '.workers[env(id)].image' $WORKER_FILE)
+      if [ "$IMAGE" = "null" ]; then
+        BUILD=$(id=$WORKER yq '.workers[env(id)].build' $WORKER_FILE)
+      fi
+      VAULT=$(id=$WORKER yq '.workers[env(id)].vault' $WORKER_FILE)
+      CUSTOM_ENV=$(id=$WORKER yq -o=j '.workers[env(id)].environment' $WORKER_FILE)
+      GPU=$(id=$WORKER yq '.workers[env(id)].gpu' $WORKER_FILE)
+
+      displayworker $NAME $REPLICAS
+
+      # Config per replica
+      for REP_WORKER in $(seq 1 1 $REPLICAS); do
+        REP_NAME=$NAME\_$REP_WORKER
+        JOB="job_"$NAME
+        if [ "$IMAGE" != "null" ]; then
+          TEMP=$(echo $TEMPLATE | worker_template=$(yq '.worker' workers/worker.yml) image=$IMAGE rep_name=$REP_NAME job=$JOB yq -o=j '.services[env(rep_name)].image = env(image) | .services[env(rep_name)] += env(worker_template) | .services[env(rep_name)].environment["AMQP_QUEUE"] = env(job)')
+        else
+          TEMP=$(echo $TEMPLATE | worker_template=$(yq '.worker' workers/worker.yml) build=$BUILD rep_name=$REP_NAME job=$JOB yq -o=j '.services[env(rep_name)].build = env(build) | .services[env(rep_name)] += env(worker_template) | .services[env(rep_name)].environment["AMQP_QUEUE"] = env(job)')
+        fi
+        TEMPLATE=$TEMP
+
+        # Custom envvar case
+        if [ "$CUSTOM_ENV" != "null" ]; then
+          TEMP=$(echo $TEMPLATE | rep_name=$REP_NAME custom_env=$CUSTOM_ENV yq -o=j '.services[env(rep_name)].environment += env(custom_env)')
+          TEMPLATE=$TEMP
         fi
 
-        displayworker $(_jq '.name') $count
+        # Vault case
+        if [ $VAULT = "true" ]; then
+          TEMP=$(echo $TEMPLATE | rep_name=$REP_NAME host='${BACKEND_HOSTNAME}/api' pass='${BACKEND_PASSWORD}' user='${BACKEND_USERNAME}' yq -o=j '.services[env(rep_name)].environment["BACKEND_HOSTNAME"] = env(host) | .services[env(rep_name)].environment["BACKEND_PASSWORD"] = env(pass) | .services[env(rep_name)].environment["BACKEND_USERNAME"] = env(user)')
+          TEMPLATE=$TEMP
+        fi
 
-        for index in $(seq 1 $count); do
-            COMPOSITION+="    "$(_jq '.name')"_"$index":\n";
+        # GPU case
+        if [ $GPU = "true" ]; then
+          TEMP=$(echo $TEMPLATE | rep_name=$REP_NAME yq -o=j '.services[env(rep_name)].runtime = "nvidia"')
+          TEMPLATE=$TEMP
+        fi
 
-            if [ $2 == "dev" ]; then
-              add_section_with_value network_mode host
-            fi
-
-            if [ $(_jq '.image') != null ]; then
-              add_section_with_value image $(_jq '.image')
-            elif [ $(_jq '.build') != null ]; then
-              add_section_with_value build $(_jq '.build')
-            else
-              echo "WARNING : No image nor build were given !"
-            fi
-
-            if [ $(_jq '.gpu') = "true" ]; then
-                add_section_with_value runtime nvidia
-            fi
-
-            if [ ! -z "${SHARED_WORK_DIRECTORIES}" ]; then
-              add_section volumes
-              shared_volumes=$(echo ${SHARED_WORK_DIRECTORIES} | tr ";" "\n")
-              for shared_volume in $shared_volumes
-              do
-                  add_item ${shared_volume}
-              done
-            else
-              add_section volumes
-              add_item \${SHARED_WORK_DIRECTORY}:/data
-            fi
-
-            add_section environment
-            add_string_env_var AMQP_QUEUE job_$(_jq '.name')
-            add_string_env_var RUST_LOG info
-            add_env_var AMQP_HOSTNAME
-            add_env_var AMQP_PORT
-            add_env_var AMQP_MANAGEMENT_PORT
-            add_env_var AMQP_USERNAME
-            add_env_var AMQP_PASSWORD
-            if [ ! -z "${AMQP_VIRTUAL_HOST}" ]; then
-              add_env_var AMQP_VIRTUAL_HOST
-            fi
-            # AMQP_VHOST will be deprecated soon.
-            if [ ! -z "${AMQP_VHOST}" ]; then
-              add_env_var AMQP_VHOST
-            fi
-            add_env_var AMQP_TLS
-
-            if [ `echo ${row} | base64 --decode | jq '.environment!=null'` == true ]; then
-
-                for extra_env in `echo ${row} | base64 --decode | jq '.environment[] | @base64'`; do
-                    _jq2() {
-                        echo ${extra_env} | sed -e 's/^"//' -e 's/"$//' | base64 --decode | jq -r ${1}
-                    }
-
-                    add_custom_env_var $(_jq2 '.key') "\""$(_jq2 '.value')"\""
-                done
-            fi
-
-            if [ $(_jq '.vault') = "true" ]; then
-                add_custom_env_var BACKEND_HOSTNAME \"\${BACKEND_HOSTNAME}/api\"
-                add_custom_env_var BACKEND_PASSWORD \"\${BACKEND_PASSWORD}\"
-                add_custom_env_var BACKEND_USERNAME \"\${BACKEND_USERNAME}\"
-            fi
-
-            if [ $(_jq '.gpu') = "true" ]; then
-                add_string_env_var NVIDIA_VISIBLE_DEVICES all
-            fi
-
-            if [ $2 = "startup" ]; then
-              add_section networks
-              add_item mediacloudai_global
-              add_item workers
-            fi
-
-            if [ $EFK_FLAG = true ]; then
-              add_section logging
-              depth 1; add_section_with_value driver "fluentd"
-              depth 1; add_section options
-              depth 2; add_section_with_value fluentd-address "localhost:24224"
-              depth 2; add_section_with_value tag "$(_jq '.name').log"
-
-              add_section depends_on
-              add_item "fluentd"
-            fi
-
-            COMPOSITION+="\n";
-        done
+        # Fluentd
+        if [ $EFK_FLAG = true ]; then
+          TEMP=$(echo $TEMPLATE | rep_name=$REP_NAME logging="$(yq '.logging' backend/fluentd.yml.tpl)" yq -o=j '.services[env(rep_name)].logging += env(logging) | .services[env(rep_name)].logging.options.tag = "workers.log"')
+          TEMPLATE=$TEMP
+        fi
+      done
     done
-}
+  fi
+done
 
-generate_workers ./opensource.workers $1
+echo $TEMPLATE | yq -P 'sort_keys(..)' >> $TARGET_FILE
+echo "..." >> $TARGET_FILE
 
-PRIVATE_WORKERS_FILENAME=./private.workers
-if test -f "$PRIVATE_WORKERS_FILENAME"; then
-    generate_workers $PRIVATE_WORKERS_FILENAME $1
-fi
+# Remove temp files
+rm workers/worker.yml
 
-if [ $EFK_FLAG = true ]; then
-  COMPOSITION+="    fluentd:\n"
-  COMPOSITION+="      build: ../fluentd\n"
-  COMPOSITION+="      volumes:\n"
-  COMPOSITION+="        - ../fluentd/conf:/fluentd/etc\n"
-  COMPOSITION+="      ports:\n"
-  COMPOSITION+="        - 24224:24224\n"
-  COMPOSITION+="        - 24224:24224/udp\n"
-  COMPOSITION+="      networks:\n"
-  COMPOSITION+="        - mediacloudai_global\n\n"
-fi
-
-COMPOSITION+="networks:\n"
-COMPOSITION+="    workers:\n"
-COMPOSITION+="        driver: bridge\n"
-COMPOSITION+="    mediacloudai_global:\n"
-COMPOSITION+="        external: true\n"
-
-
-echo -e "${COMPOSITION}" > $TARGET_FILE
+set +e

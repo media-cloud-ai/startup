@@ -4,11 +4,17 @@ version: "3.6"
 
 services:
   elasticsearch:
+    user: "$UID"
     image: ${ELASTICSEARCH_IMAGE}:${ELASTICSEARCH_VERSION}
     environment:
       - "discovery.type=single-node"
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - 9200:9200
+    volumes:
+      - ${PWD}/monitoring/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ${PWD}/monitoring/docker-data-volumes/elasticsearch:/usr/share/elasticsearch/data
     networks:
       - mediacloudai_global
 
@@ -16,6 +22,8 @@ services:
     image: ${GRAFANA_IMAGE}:${GRAFANA_VERSION}
     ports:
       - 3000:3000
+    volumes:
+      - ${PWD}/monitoring/docker-data-volumes/grafana:/var/lib/grafana
     user: "0"
     networks:
       - mediacloudai_global
@@ -24,6 +32,8 @@ services:
     image: ${KIBANA_IMAGE}:${KIBANA_VERSION}
     ports:
       - 5601:5601
+    volumes:
+      - ${PWD}/monitoring/config/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - mediacloudai_global
 

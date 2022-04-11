@@ -1,0 +1,35 @@
+---
+
+workers:
+  - name: adm_engine
+    image: mediacloudai/adm-engine:1.0.6
+    count: 1
+
+  - name: file_system
+    image: mediacloudai/rs_file_system_worker:1.2.3
+    count: 1
+
+  - name: ffmpeg
+    image: mediacloudai/rs_ffmpeg_worker:0.0.6
+    count: 1
+
+  - name: manifest
+    image: mediacloudai/rs_manifest_worker:0.4.3
+    count: 1
+    environment:
+      MANIFEST_MODE: ISM
+
+  - name: media_splitter
+    image: mediacloudai/rs_media_splitter_worker:0.1.3
+    count: 1
+
+  - name: object_detection
+    image: mediacloudai/py_object_detection_worker:0.0.1
+    count: 3
+
+  - name: transfer
+    image: mediacloudai/rs_transfer_worker:0.4.2
+    count: 1
+    vault: true
+
+...
